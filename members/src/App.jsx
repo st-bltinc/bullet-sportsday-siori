@@ -5,7 +5,7 @@ function App() {
   const [search, setSearch] = useState('')
 
   useEffect(() => {
-    fetch('http://wagahai.mixh.jp/members/api.php')
+    fetch('https://wagahai.mixh.jp/2026/members/api.php')
       .then(res => res.json())
       .then(data => setMembers(data))
   }, [])
