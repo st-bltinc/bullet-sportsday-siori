@@ -255,3 +255,41 @@ body {
     font-size: 0.8rem;
     cursor: pointer;
 }
+
+@media (max-width: 480px) {
+    .container {
+        padding: 1rem 0.75rem;
+    }
+
+    .title {
+        font-size: 1.3rem;
+    }
+
+    .controls {
+        flex-direction: column;
+    }
+
+    .input,
+    .select {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .members-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .member-card {
+        padding: 1rem;
+    }
+
+    .login-form {
+        flex-direction: column;
+    }
+
+    .btn-add,
+    .btn-cancel {
+        width: 100%;
+        text-align: center;
+    }
+}
