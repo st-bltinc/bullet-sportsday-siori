@@ -10,7 +10,7 @@ const scheduleData = [
   { time: '15:30', label: '閉会式・記念撮影', type: 'event' },
   { time: '16:00', label: 'バス移動', type: 'bus' },
   { time: '17:00', label: 'キラナガーデン豊洲到着・BBQ開始', type: 'event' },
-  { time: '19:00', label: 'BBQ終了・バス移動', type: 'bus' },
+  { time: '20:00', label: 'BBQ終了・バス移動', type: 'bus' },
   { time: '21:00', label: '新宿野村ビル到着・二次会（任意）', type: 'after' },
 ]
 
