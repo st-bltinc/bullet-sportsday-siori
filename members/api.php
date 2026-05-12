@@ -20,9 +20,32 @@ switch ($method) {
         echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
         break;
 
-    // メンバー追加
+    // 写真アップロード
     case 'POST':
+        // 写真アップロードの場合
+        if (isset($_FILES['photo'])) {
+            $uploadDir = __DIR__ . '/uploads/';
+            if (!is_dir($uploadDir))
+                mkdir($uploadDir, 0755, true);
+
+            $ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
+            $filename = uniqid() . '.' . $ext;
+            $filepath = $uploadDir . $filename;
+
+            if (move_uploaded_file($_FILES['photo']['tmp_name'], $filepath)) {
+                echo json_encode(['success' => true, 'path' => 'https://wagahai.mixh.jp/2026/members/uploads/' . $filename]);
+            } else {
+                echo json_encode(['error' => 'アップロード失敗']);
+            }
+            break;
+        }
+
+        // メンバー追加の場合
         $data = json_decode(file_get_contents('php://input'), true);
+        if (empty($data['name'])) {
+            echo json_encode(['error' => '名前は必須です']);
+            break;
+        }
         $stmt = $pdo->prepare('INSERT INTO members (name, yomi, bus_number, photo, team) VALUES (?, ?, ?, ?, ?)');
         $stmt->execute([
             $data['name'],
