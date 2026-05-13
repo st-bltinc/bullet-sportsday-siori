@@ -16,11 +16,80 @@ body {
     padding: 1.5rem 1rem;
 }
 
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
 .title {
     font-size: 1.5rem;
     font-weight: 700;
     color: #1a1a2e;
-    margin-bottom: 1.5rem;
+}
+
+.btn-admin-login {
+    padding: 0.4rem 0.75rem;
+    background: #555;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.btn-logout {
+    padding: 0.4rem 0.75rem;
+    background: #aaa;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.input {
+    padding: 0.75rem 1rem;
+    border: 1.5px solid #ddd;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    width: 100%;
+}
+
+.btn-primary {
+    padding: 0.75rem;
+    background: #E84040;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+}
+
+.btn-cancel {
+    padding: 0.75rem;
+    background: #aaa;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
 }
 
 .progress-area {
@@ -57,24 +126,31 @@ body {
 .list-item {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    justify-content: space-between;
     background: white;
     border-radius: 10px;
     padding: 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    cursor: pointer;
-    transition: opacity 0.2s;
     -webkit-user-select: none;
     user-select: none;
-}
-
-.list-item.checked {
-    opacity: 0.5;
 }
 
 .list-item.checked .item-text {
     text-decoration: line-through;
     color: #aaa;
+}
+
+.list-item.checked .checkbox {
+    background: #22A85A;
+    border-color: #22A85A;
+}
+
+.list-item-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    cursor: pointer;
 }
 
 .checkbox {
@@ -89,11 +165,6 @@ body {
     transition: background 0.2s, border-color 0.2s;
 }
 
-.list-item.checked .checkbox {
-    background: #22A85A;
-    border-color: #22A85A;
-}
-
 .check-icon {
     color: white;
     font-size: 0.85rem;
@@ -103,6 +174,30 @@ body {
 .item-text {
     font-size: 0.95rem;
     font-weight: 500;
+}
+
+.btn-delete-item {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.25rem;
+}
+
+.add-form {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.add-form .input {
+    flex: 1;
+}
+
+.add-form .btn-primary {
+    width: auto;
+    padding: 0.75rem 1rem;
 }
 
 .btn-reset {

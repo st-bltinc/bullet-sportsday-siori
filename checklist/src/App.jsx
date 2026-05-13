@@ -1,75 +1,215 @@
-import { useState, useEffect } from 'react'
-import './App.css'
+* { box- sizing: border - box; margin: 0; padding: 0; }
 
-const defaultItems = [
-  { id: 1, text: '動きやすい服装・運動靴', checked: false },
-  { id: 2, text: '着替え', checked: false },
-  { id: 3, text: 'タオル・汗拭きタオル', checked: false },
-  { id: 4, text: '水筒・飲み物', checked: false },
-  { id: 5, text: '日焼け止め・帽子', checked: false },
-  { id: 6, text: '保険証', checked: false },
-  { id: 7, text: 'レジャーシート', checked: false },
-  { id: 8, text: 'スマートフォン', checked: false },
-]
-
-function App() {
-  const [items, setItems] = useState(() => {
-    const saved = localStorage.getItem('checklist')
-    return saved ? JSON.parse(saved) : defaultItems
-  })
-
-  useEffect(() => {
-    localStorage.setItem('checklist', JSON.stringify(items))
-  }, [items])
-
-  const toggleCheck = (id) => {
-    setItems(items.map(item =>
-      item.id === id ? { ...item, checked: !item.checked } : item
-    ))
-  }
-
-  const resetAll = () => {
-    if (window.confirm('チェックをリセットしますか？')) {
-      setItems(items.map(item => ({ ...item, checked: false })))
-    }
-  }
-
-  const checkedCount = items.filter(i => i.checked).length
-
-  return (
-    <div className="container">
-      <h1 className="title">持ち物チェックリスト</h1>
-
-      <div className="progress-area">
-        <div className="progress-text">{checkedCount} / {items.length} 完了</div>
-        <div className="progress-bar">
-          <div
-            className="progress-fill"
-            style={{ width: `${(checkedCount / items.length) * 100}%` }}
-          />
-        </div>
-      </div>
-
-      <div className="list">
-        {items.map(item => (
-          <div
-            key={item.id}
-            className={`list-item ${item.checked ? 'checked' : ''}`}
-            onClick={() => toggleCheck(item.id)}
-          >
-            <div className="checkbox">
-              {item.checked && <span className="check-icon">✓</span>}
-            </div>
-            <span className="item-text">{item.text}</span>
-          </div>
-        ))}
-      </div>
-
-      <button className="btn-reset" onClick={resetAll}>
-        リセット
-      </button>
-    </div>
-  )
+body {
+  font - family: 'Noto Sans JP', sans - serif;
+  background: #f5f5f5;
+  color: #333;
 }
 
-export default App
+.container {
+  max - width: 480px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+.header {
+  display: flex;
+  justify - content: space - between;
+  align - items: center;
+  margin - bottom: 1.5rem;
+}
+
+.title {
+  font - size: 1.5rem;
+  font - weight: 700;
+  color: #1a1a2e;
+}
+
+.btn - admin - login {
+  padding: 0.4rem 0.75rem;
+  background: #555;
+  color: white;
+  border: none;
+  border - radius: 8px;
+  font - size: 0.8rem;
+  cursor: pointer;
+}
+
+.btn - logout {
+  padding: 0.4rem 0.75rem;
+  background: #aaa;
+  color: white;
+  border: none;
+  border - radius: 8px;
+  font - size: 0.8rem;
+  cursor: pointer;
+}
+
+.login - form {
+  display: flex;
+  flex - direction: column;
+  gap: 0.75rem;
+  margin - bottom: 1rem;
+  background: white;
+  padding: 1rem;
+  border - radius: 12px;
+  box - shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.input {
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #ddd;
+  border - radius: 10px;
+  font - size: 0.95rem;
+  width: 100 %;
+}
+
+.btn - primary {
+  padding: 0.75rem;
+  background: #E84040;
+  color: white;
+  border: none;
+  border - radius: 10px;
+  font - size: 0.95rem;
+  font - weight: 700;
+  cursor: pointer;
+  width: 100 %;
+}
+
+.btn - cancel {
+  padding: 0.75rem;
+  background: #aaa;
+  color: white;
+  border: none;
+  border - radius: 10px;
+  font - size: 0.95rem;
+  font - weight: 700;
+  cursor: pointer;
+  width: 100 %;
+}
+
+.progress - area {
+  margin - bottom: 1.5rem;
+}
+
+.progress - text {
+  font - size: 0.85rem;
+  color: #888;
+  margin - bottom: 0.5rem;
+}
+
+.progress - bar {
+  height: 8px;
+  background: #e0e0e0;
+  border - radius: 999px;
+  overflow: hidden;
+}
+
+.progress - fill {
+  height: 100 %;
+  background: #22A85A;
+  border - radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.list {
+  display: flex;
+  flex - direction: column;
+  gap: 0.5rem;
+  margin - bottom: 1.5rem;
+}
+
+.list - item {
+  display: flex;
+  align - items: center;
+  justify - content: space - between;
+  background: white;
+  border - radius: 10px;
+  padding: 1rem;
+  box - shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  -webkit - user - select: none;
+  user - select: none;
+}
+
+.list - item.checked.item - text {
+  text - decoration: line - through;
+  color: #aaa;
+}
+
+.list - item.checked.checkbox {
+  background: #22A85A;
+  border - color: #22A85A;
+}
+
+.list - item - left {
+  display: flex;
+  align - items: center;
+  gap: 0.75rem;
+  flex: 1;
+  cursor: pointer;
+}
+
+.checkbox {
+  width: 24px;
+  height: 24px;
+  border - radius: 6px;
+  border: 2px solid #ddd;
+  display: flex;
+  align - items: center;
+  justify - content: center;
+  flex - shrink: 0;
+  transition: background 0.2s, border - color 0.2s;
+}
+
+.check - icon {
+  color: white;
+  font - size: 0.85rem;
+  font - weight: 700;
+}
+
+.item - text {
+  font - size: 0.95rem;
+  font - weight: 500;
+}
+
+.btn - delete -item {
+  background: none;
+  border: none;
+  color: #aaa;
+  font - size: 1rem;
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.add - form {
+  display: flex;
+  gap: 0.75rem;
+  margin - bottom: 1rem;
+}
+
+.add - form.input {
+  flex: 1;
+}
+
+.add - form.btn - primary {
+  width: auto;
+  padding: 0.75rem 1rem;
+}
+
+.btn - reset {
+  width: 100 %;
+  padding: 0.75rem;
+  background: #aaa;
+  color: white;
+  border: none;
+  border - radius: 10px;
+  font - size: 0.9rem;
+  font - weight: 700;
+  cursor: pointer;
+}
+
+@media(max - width: 480px) {
+  .container {
+    padding: 1rem 0.75rem;
+  }
+}
