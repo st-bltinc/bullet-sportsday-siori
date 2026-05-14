@@ -43,6 +43,8 @@ function App() {
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: API_KEY,
     libraries,
+    language: 'ja',
+    region: 'JP',
   })
 
   const getRoute = useCallback((venue, mode) => {
