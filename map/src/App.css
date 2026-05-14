@@ -1,0 +1,189 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: #f5f5f5;
+    color: #333;
+}
+
+.container {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    margin-bottom: 1.5rem;
+}
+
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    font-size: 1rem;
+    color: #888;
+}
+
+.venue-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.venue-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.2s;
+}
+
+.venue-card.active {
+    border-color: #E84040;
+}
+
+.venue-time {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #E84040;
+    min-width: 48px;
+}
+
+.venue-info {
+    flex: 1;
+}
+
+.venue-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.venue-desc {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 0.2rem;
+}
+
+.venue-address {
+    font-size: 0.75rem;
+    color: #aaa;
+    margin-top: 0.2rem;
+}
+
+.venue-arrow {
+    color: #aaa;
+    font-size: 1rem;
+}
+
+.map-area {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.map-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.map-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.btn-route {
+    padding: 0.4rem 0.75rem;
+    background: #E84040;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-route:disabled {
+    background: #aaa;
+}
+
+.map {
+    width: 100%;
+    height: 300px;
+}
+
+.route-info {
+    padding: 1rem;
+    border-top: 1px solid #eee;
+}
+
+.route-summary {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: #1a1a2e;
+}
+
+.route-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.route-step {
+    font-size: 0.8rem;
+    color: #555;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    line-height: 1.5;
+}
+
+.travel-modes {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.btn-mode {
+    flex: 1;
+    padding: 0.5rem;
+    background: #f0f0f0;
+    color: #555;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.btn-mode.active {
+    background: #E84040;
+    color: white;
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 1rem 0.75rem;
+    }
+}
