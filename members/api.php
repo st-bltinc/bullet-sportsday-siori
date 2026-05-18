@@ -20,9 +20,8 @@ switch ($method) {
         echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
         break;
 
-    // 写真アップロード
+    // 写真アップロード or メンバー追加
     case 'POST':
-        // 写真アップロードの場合
         if (isset($_FILES['photo'])) {
             $uploadDir = __DIR__ . '/uploads/';
             if (!is_dir($uploadDir))
@@ -40,19 +39,20 @@ switch ($method) {
             break;
         }
 
-        // メンバー追加の場合
         $data = json_decode(file_get_contents('php://input'), true);
         if (empty($data['name'])) {
             echo json_encode(['error' => '名前は必須です']);
             break;
         }
-        $stmt = $pdo->prepare('INSERT INTO members (name, yomi, bus_number, photo, team) VALUES (?, ?, ?, ?, ?)');
+        $stmt = $pdo->prepare('INSERT INTO members (name, yomi, bus_number, photo, team, birthday, department) VALUES (?, ?, ?, ?, ?, ?, ?)');
         $stmt->execute([
             $data['name'],
             $data['yomi'] ?? null,
             $data['bus_number'] ?? null,
             $data['photo'] ?? null,
-            $data['team'] ?? null
+            $data['team'] ?? null,
+            $data['birthday'] ?? null,
+            $data['department'] ?? null,
         ]);
         echo json_encode(['success' => true, 'id' => $pdo->lastInsertId()]);
         break;
@@ -60,13 +60,15 @@ switch ($method) {
     // メンバー更新
     case 'PUT':
         $data = json_decode(file_get_contents('php://input'), true);
-        $stmt = $pdo->prepare('UPDATE members SET name=?, yomi=?, bus_number=?, photo=?, team=? WHERE id=?');
+        $stmt = $pdo->prepare('UPDATE members SET name=?, yomi=?, bus_number=?, photo=?, team=?, birthday=?, department=? WHERE id=?');
         $stmt->execute([
             $data['name'],
             $data['yomi'] ?? null,
             $data['bus_number'] ?? null,
             $data['photo'] ?? null,
             $data['team'] ?? null,
+            $data['birthday'] ?? null,
+            $data['department'] ?? null,
             $data['id']
         ]);
         echo json_encode(['success' => true]);
