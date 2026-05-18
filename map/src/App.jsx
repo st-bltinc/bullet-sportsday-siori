@@ -9,8 +9,8 @@ const venues = [
     id: 1,
     name: 'とどろきアリーナ',
     address: '神奈川県川崎市中原区等々力1-3',
-    lat: 35.5765,
-    lng: 139.6540,
+    lat: 35.5763,
+    lng: 139.6539,
     time: '09:30',
     description: '開会式・運動会'
   },
@@ -18,8 +18,8 @@ const venues = [
     id: 2,
     name: 'キラナガーデン豊洲',
     address: '東京都江東区豊洲6-4-1',
-    lat: 35.6528,
-    lng: 139.7954,
+    lat: 35.6502,
+    lng: 139.7957,
     time: '17:00',
     description: 'BBQ'
   },
@@ -28,9 +28,9 @@ const venues = [
 const libraries = ['places']
 
 const travelModes = [
-  { label: '🚃 電車', value: 'TRANSIT' },
   { label: '🚶 徒歩', value: 'WALKING' },
   { label: '🚗 車', value: 'DRIVING' },
+  { label: '🚃 電車', value: 'TRANSIT' },
 ]
 
 function App() {
@@ -63,11 +63,16 @@ function App() {
         if (status === 'OK') {
           setDirections(result)
         } else {
-          alert('ルートが見つかりませんでした')
+          alert(`ルートエラー: ${status}`)
         }
       }
     )
   }, [userLocation])
+
+  const openGoogleMaps = (venue) => {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${venue.lat},${venue.lng}&travelmode=transit`
+    window.open(url, '_blank')
+  }
 
   const getUserLocation = (venue) => {
     setSelected(venue)
@@ -77,7 +82,12 @@ function App() {
         (pos) => {
           setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude })
         },
-        () => alert('位置情報の取得に失敗しました')
+        () => alert('位置情報の取得に失敗しました'),
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
       )
     } else {
       alert('位置情報がサポートされていません')
@@ -135,7 +145,13 @@ function App() {
               <button
                 key={mode.value}
                 className={`btn-mode ${travelMode === mode.value ? 'active' : ''}`}
-                onClick={() => handleTravelMode(mode.value)}
+                onClick={() => {
+                  if (mode.value === 'TRANSIT') {
+                    openGoogleMaps(selected)
+                  } else {
+                    handleTravelMode(mode.value)
+                  }
+                }}
               >
                 {mode.label}
               </button>
