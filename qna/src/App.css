@@ -1,0 +1,292 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: #f5f5f5;
+    color: #333;
+}
+
+.container {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a2e;
+}
+
+.btn-name {
+    background: #f0f0f0;
+    border: none;
+    border-radius: 999px;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.btn-logout {
+    padding: 0.4rem 0.75rem;
+    background: #aaa;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.btn-admin-login {
+    padding: 0.4rem 0.75rem;
+    background: #555;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.admin-login-area {
+    margin-bottom: 1rem;
+}
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.name-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.name-form p {
+    font-size: 0.95rem;
+    color: #555;
+}
+
+.input {
+    padding: 0.75rem 1rem;
+    border: 1.5px solid #ddd;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    width: 100%;
+}
+
+.textarea {
+    padding: 0.75rem 1rem;
+    border: 1.5px solid #ddd;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    width: 100%;
+    resize: none;
+    font-family: inherit;
+}
+
+.btn-primary {
+    padding: 0.75rem;
+    background: #E84040;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+}
+
+.btn-cancel {
+    padding: 0.75rem;
+    background: #aaa;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    width: 100%;
+}
+
+.btn-change {
+    width: 100%;
+    padding: 0.75rem;
+    background: #aaa;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 1rem;
+}
+
+.question-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.qna-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.qna-item {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border-left: 4px solid #ddd;
+}
+
+.qna-item.answered {
+    border-left-color: #22A85A;
+}
+
+.qna-item.unanswered {
+    border-left-color: #F5B800;
+}
+
+.qna-meta {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 0.4rem;
+}
+
+.qna-user {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #555;
+}
+
+.qna-date {
+    font-size: 0.75rem;
+    color: #aaa;
+}
+
+.qna-q-text {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #1a1a2e;
+}
+
+.qna-answer {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #eee;
+}
+
+.qna-a-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #22A85A;
+    margin-bottom: 0.3rem;
+}
+
+.qna-a-text {
+    font-size: 0.88rem;
+    color: #444;
+    line-height: 1.6;
+}
+
+.qna-pending {
+    margin-top: 0.75rem;
+    font-size: 0.78rem;
+    color: #F5B800;
+    font-weight: 700;
+}
+
+.admin-answer-form {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.admin-answer-btns {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.admin-answer-btns .btn-primary {
+    flex: 1;
+}
+
+.btn-edit-answer {
+    flex: 1;
+    padding: 0.5rem;
+    background: #f0f0f0;
+    color: #555;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.btn-delete-answer {
+    flex: 1;
+    padding: 0.5rem;
+    background: #E84040;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.voter-search-list {
+    background: white;
+    border-radius: 10px;
+    border: 1.5px solid #ddd;
+    overflow: hidden;
+}
+
+.voter-search-item {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.voter-search-item:last-child {
+    border-bottom: none;
+}
+
+.voter-search-item:hover {
+    background: #f5f5f5;
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 1rem 0.75rem;
+    }
+}

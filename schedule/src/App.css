@@ -134,6 +134,37 @@ body {
     border-radius: 999px;
 }
 
+.tl-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+}
+
+.tl-btn {
+    display: inline-block;
+    padding: 0.3rem 0.75rem;
+    background: #1a1a2e;
+    color: white;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.15s;
+}
+
+.tl-btn:hover {
+    background: #E84040;
+}
+
+.tl-item.current .tl-btn {
+    background: #E84040;
+}
+
+.tl-item.past .tl-btn {
+    background: #ccc;
+}
+
 @media (max-width: 480px) {
     .container {
         padding: 1rem 0.75rem;
