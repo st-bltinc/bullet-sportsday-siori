@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react'
 import './App.css'
 
 const API = 'https://wagahai.mixh.jp/2026/members/api.php'
+const ME_API = 'https://wagahai.mixh.jp/2026/login/me.php'
 const ADMIN_PASSWORD = 'bullet2026'
 
 function App() {
+  const [user, setUser] = useState(null)
   const [members, setMembers] = useState([])
   const [search, setSearch] = useState('')
   const [busFilter, setBusFilter] = useState('')
@@ -17,6 +19,23 @@ function App() {
   const [passwordInput, setPasswordInput] = useState('')
   const [csvFile, setCsvFile] = useState(null)
   const [importing, setImporting] = useState(false)
+
+  useEffect(() => {
+    fetch(ME_API, { credentials: 'include' })
+      .then(res => {
+        if (res.status === 401) {
+          window.location.href = 'https://wagahai.mixh.jp/2026/login/'
+          return null
+        }
+        return res.json()
+      })
+      .then(data => {
+        if (data) {
+          setUser(data)
+          // 最初は必ずユーザーモード（管理者でも）
+        }
+      })
+  }, [])
 
   useEffect(() => {
     fetchMembers()
@@ -153,6 +172,8 @@ function App() {
     }
   }
 
+  if (!user) return <div className="loading">読み込み中...</div>
+
   return (
     <div className="container">
 
@@ -162,8 +183,12 @@ function App() {
           {isAdmin ? (
             <div className="admin-badge-area">
               <span className="admin-badge">管理者モード</span>
-              <button className="btn-logout" onClick={handleLogout}>ログアウト</button>
+              <button className="btn-logout" onClick={handleLogout}>終了</button>
             </div>
+          ) : user.role === 'admin' ? (
+            <button className="btn-admin-login" onClick={() => setIsAdmin(true)}>
+              管理者
+            </button>
           ) : (
             <button className="btn-admin-login" onClick={() => setShowLoginForm(!showLoginForm)}>
               管理者ログイン
