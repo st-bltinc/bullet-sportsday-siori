@@ -2,18 +2,19 @@ import { useState, useEffect } from 'react'
 import './App.css'
 
 const MEMBERS_API = 'https://wagahai.mixh.jp/2026/members/api.php'
+const ME_API = 'https://wagahai.mixh.jp/2026/login/me.php'
 
 const scheduleData = [
-  { time: '09:00', label: '移動開始' },
-  { time: '09:30', label: 'とどろきアリーナ集合' },
-  { time: '10:00', label: '開場・開会式・運動会開始' },
-  { time: '12:00', label: 'ランチ' },
-  { time: '13:00', label: '午後の部開始' },
-  { time: '15:30', label: '閉会式・記念撮影' },
-  { time: '16:00', label: 'バス移動' },
-  { time: '17:00', label: 'キラナガーデン豊洲到着・BBQ開始' },
-  { time: '20:00', label: 'BBQ終了・バス移動' },
-  { time: '21:00', label: '新宿野村ビル到着・二次会（任意）' },
+  { time: '10:00', label: '受付開始' },
+  { time: '10:30', label: '集合期限' },
+  { time: '10:45', label: '開会式' },
+  { time: '13:00', label: 'お昼' },
+  { time: '15:30', label: '閉会式' },
+  { time: '16:00', label: 'バス出発' },
+  { time: '17:00', label: 'BBQ開始（キラナガーデン豊洲）' },
+  { time: '19:00', label: 'ラストオーダー' },
+  { time: '20:00', label: '解散' },
+  { time: '21:00', label: '二次会（新宿野村ビル）' },
 ]
 
 function getNextSchedule() {
@@ -28,24 +29,41 @@ function getNextSchedule() {
 }
 
 function App() {
-  const [members, setMembers] = useState([])
-  const [selectedId, setSelectedId] = useState(() => localStorage.getItem('mypage_id') || '')
+  const [user, setUser] = useState(null)
   const [myData, setMyData] = useState(null)
   const [nextSchedule, setNextSchedule] = useState(getNextSchedule())
+  const [loading, setLoading] = useState(true)
 
+  // ログイン確認
   useEffect(() => {
-    fetch(MEMBERS_API)
-      .then(res => res.json())
-      .then(data => setMembers(data))
+    fetch(ME_API, { credentials: 'include' })
+      .then(res => {
+        if (res.status === 401) {
+          window.location.href = 'https://wagahai.mixh.jp/2026/login/'
+          return null
+        }
+        return res.json()
+      })
+      .then(data => {
+        if (data) {
+          setUser(data)
+        }
+      })
   }, [])
 
+  // メンバーリストから自分のデータを取得
   useEffect(() => {
-    if (selectedId) {
-      const found = members.find(m => String(m.id) === String(selectedId))
-      if (found) setMyData(found)
-    }
-  }, [selectedId, members])
+    if (!user) return
+    fetch(MEMBERS_API)
+      .then(res => res.json())
+      .then(data => {
+        const found = data.find(m => m.name === user.display_name)
+        if (found) setMyData(found)
+        setLoading(false)
+      })
+  }, [user])
 
+  // スケジュール更新
   useEffect(() => {
     const timer = setInterval(() => {
       setNextSchedule(getNextSchedule())
@@ -53,28 +71,7 @@ function App() {
     return () => clearInterval(timer)
   }, [])
 
-  const handleSelect = (e) => {
-    const id = e.target.value
-    setSelectedId(id)
-    localStorage.setItem('mypage_id', id)
-  }
-
-  if (!myData) {
-    return (
-      <div className="container">
-        <h1 className="title">マイページ</h1>
-        <div className="select-form">
-          <p>あなたの名前を選択してください</p>
-          <select className="select" value={selectedId} onChange={handleSelect}>
-            <option value="">選択してください</option>
-            {members.map(m => (
-              <option key={m.id} value={m.id}>{m.name}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-    )
-  }
+  if (!user || loading) return <div className="loading">読み込み中...</div>
 
   return (
     <div className="container">
@@ -83,17 +80,17 @@ function App() {
       {/* プロフィール */}
       <div className="profile-card">
         <div className="profile-avatar">
-          {myData.photo
-            ? <img src={myData.photo} alt={myData.name} />
-            : <span>{myData.name[0]}</span>
+          {myData?.photo
+            ? <img src={myData.photo} alt={user.display_name} />
+            : <span>{user.display_name[0]}</span>
           }
         </div>
         <div className="profile-info">
-          <div className="profile-name">{myData.name}</div>
-          {myData.department && <div className="profile-dept">{myData.department}</div>}
-          {myData.birthday && <div className="profile-meta">🎂 {myData.birthday}</div>}
-          {myData.bus_number && <div className="profile-meta">🚌 {myData.bus_number}号車</div>}
-          {myData.team && <div className="profile-meta">🏃 {myData.team}</div>}
+          <div className="profile-name">{user.display_name}</div>
+          {myData?.department && <div className="profile-dept">{myData.department}</div>}
+          {myData?.birthday && <div className="profile-meta">🎂 {myData.birthday}</div>}
+          {myData?.bus_number && <div className="profile-meta">🚌 {myData.bus_number}号車</div>}
+          {myData?.team && <div className="profile-meta">🏃 {myData.team}</div>}
         </div>
       </div>
 
@@ -111,15 +108,6 @@ function App() {
           </div>
         )}
       </div>
-
-      {/* メンバー変更 */}
-      <button className="btn-change" onClick={() => {
-        localStorage.removeItem('mypage_id')
-        setSelectedId('')
-        setMyData(null)
-      }}>
-        メンバーを変更
-      </button>
     </div>
   )
 }
