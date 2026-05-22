@@ -13,7 +13,7 @@ require 'db.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-$OPENAI_API_KEY = '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';
+$OPENAI_API_KEY = '';
 
 function getAiAnswer($question, $apiKey)
 {
