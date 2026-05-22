@@ -9,19 +9,28 @@ const venues = [
     id: 1,
     name: 'とどろきアリーナ',
     address: '神奈川県川崎市中原区等々力1-3',
-    lat: 35.5763,
-    lng: 139.6539,
+    lat: 35.5875286,
+    lng: 139.6473653,
     time: '09:30',
     description: '開会式・運動会'
   },
   {
     id: 2,
     name: 'キラナガーデン豊洲',
-    address: '東京都江東区豊洲6-4-1',
-    lat: 35.6502,
-    lng: 139.7957,
+    address: '東京都江東区豊洲6-5-27',
+    lat: 35.6425265,
+    lng: 139.7776937,
     time: '17:00',
     description: 'BBQ'
+  },
+  {
+    id: 3,
+    name: '新宿野村ビル',
+    address: '東京都新宿区西新宿1-26-2',
+    lat: 35.6929509,
+    lng: 139.6953653,
+    time: '21:00',
+    description: '二次会'
   },
 ]
 
@@ -70,8 +79,13 @@ function App() {
   }, [userLocation])
 
   const openGoogleMaps = (venue) => {
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${venue.lat},${venue.lng}&travelmode=transit`
-    window.open(url, '_blank')
+    if (userLocation) {
+      const url = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${venue.lat},${venue.lng}&travelmode=transit`
+      window.open(url, '_blank')
+    } else {
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${venue.lat},${venue.lng}&travelmode=transit`
+      window.open(url, '_blank')
+    }
   }
 
   const getUserLocation = (venue) => {

@@ -305,3 +305,91 @@ body {
     cursor: pointer;
     white-space: nowrap;
 }
+
+.btn-image {
+    padding: 0.6rem 0.75rem;
+    background: #f0f0f0;
+    border: none;
+    border-radius: 999px;
+    font-size: 1rem;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.btn-image:disabled {
+    opacity: 0.5;
+}
+
+.msg-image {
+    max-width: 200px;
+    border-radius: 12px;
+    cursor: pointer;
+}
+
+.msg-bubble-wrap {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.3rem;
+}
+
+.btn-reaction-add {
+    background: none;
+    border: none;
+    font-size: 0.85rem;
+    cursor: pointer;
+    opacity: 0.5;
+    padding: 0.2rem;
+    flex-shrink: 0;
+}
+
+.btn-reaction-add:hover {
+    opacity: 1;
+}
+
+.reaction-picker {
+    display: flex;
+    gap: 0.3rem;
+    background: white;
+    border-radius: 999px;
+    padding: 0.4rem 0.75rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    margin-top: 0.3rem;
+}
+
+.reaction-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.2rem;
+    border-radius: 6px;
+    transition: transform 0.1s;
+}
+
+.reaction-btn:hover {
+    transform: scale(1.3);
+}
+
+.reaction-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-top: 0.3rem;
+}
+
+.reaction-item {
+    background: #f0f0f0;
+    border: 1.5px solid transparent;
+    border-radius: 999px;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.reaction-item.reacted {
+    background: #EEF2FF;
+    border-color: #2B6BE8;
+}

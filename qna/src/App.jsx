@@ -2,15 +2,13 @@ import { useState, useEffect } from 'react'
 import './App.css'
 
 const API = 'https://wagahai.mixh.jp/2026/qna/api.php'
-const MEMBERS_API = 'https://wagahai.mixh.jp/2026/members/api.php'
+const ME_API = 'https://wagahai.mixh.jp/2026/login/me.php'
 const ADMIN_PASSWORD = 'bullet2026'
 
 function App() {
+  const [user, setUser] = useState(null)
   const [qnaList, setQnaList] = useState([])
-  const [members, setMembers] = useState([])
   const [question, setQuestion] = useState('')
-  const [userName, setUserName] = useState(() => localStorage.getItem('qna_user') || '')
-  const [userInput, setUserInput] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
   const [showLoginForm, setShowLoginForm] = useState(false)
   const [passwordInput, setPasswordInput] = useState('')
@@ -18,9 +16,23 @@ function App() {
   const [editTarget, setEditTarget] = useState(null)
   const [sending, setSending] = useState(false)
 
+  // ログイン確認
+  useEffect(() => {
+    fetch(ME_API, { credentials: 'include' })
+      .then(res => {
+        if (res.status === 401) {
+          window.location.href = 'https://wagahai.mixh.jp/2026/login/'
+          return null
+        }
+        return res.json()
+      })
+      .then(data => {
+        if (data) setUser(data)
+      })
+  }, [])
+
   useEffect(() => {
     fetchQna()
-    fetchMembers()
   }, [])
 
   const fetchQna = () => {
@@ -29,20 +41,9 @@ function App() {
       .then(data => setQnaList(data))
   }
 
-  const fetchMembers = () => {
-    fetch(MEMBERS_API)
-      .then(res => res.json())
-      .then(data => setMembers(data))
-  }
-
-  const handleSetUser = () => {
-    if (!userInput.trim()) return alert('名前を選択してください')
-    localStorage.setItem('qna_user', userInput.trim())
-    setUserName(userInput.trim())
-  }
-
   const handleQuestion = () => {
     if (!question.trim()) return alert('質問を入力してください')
+    if (!user) return alert('ログインしてください')
     setSending(true)
     fetch(API, {
       method: 'POST',
@@ -50,7 +51,7 @@ function App() {
       body: JSON.stringify({
         action: 'question',
         question: question.trim(),
-        user_name: userName
+        user_name: user.display_name
       })
     })
       .then(r => r.json())
@@ -107,78 +108,38 @@ function App() {
     return `${d.getMonth() + 1}/${d.getDate()} ${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`
   }
 
-  if (!userName && !isAdmin) {
-    return (
-      <div className="container">
-        <h1 className="title">❓ Q&A</h1>
-
-        <div className="admin-login-area">
-          <button className="btn-admin-login" onClick={() => setShowLoginForm(!showLoginForm)}>
-            管理者ログイン
-          </button>
-        </div>
-
-        {showLoginForm && (
-          <div className="login-form">
-            <input
-              className="input"
-              type="password"
-              placeholder="パスワード"
-              value={passwordInput}
-              onChange={e => setPasswordInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleLogin()}
-            />
-            <button className="btn-primary" onClick={handleLogin}>ログイン</button>
-            <button className="btn-cancel" onClick={() => setShowLoginForm(false)}>キャンセル</button>
-          </div>
-        )}
-
-        <div className="name-form">
-          <p>あなたの名前を選択してください</p>
-          <input
-            className="input"
-            type="text"
-            placeholder="名前を入力して検索"
-            value={userInput}
-            onChange={e => setUserInput(e.target.value)}
-          />
-          {userInput && (
-            <div className="voter-search-list">
-              {members
-                .filter(m => m.name.includes(userInput) || (m.yomi && m.yomi.includes(userInput)))
-                .map(m => (
-                  <div
-                    key={m.id}
-                    className="voter-search-item"
-                    onClick={() => setUserInput(m.name)}
-                  >
-                    {m.name}
-                  </div>
-                ))}
-            </div>
-          )}
-          <button className="btn-primary" onClick={handleSetUser}>はじめる</button>
-        </div>
-      </div>
-    )
-  }
+  if (!user) return <div className="loading">読み込み中...</div>
 
   return (
     <div className="container">
       <div className="header">
         <h1 className="title">❓ Q&A</h1>
-        {isAdmin ? (
-          <button className="btn-logout" onClick={() => setIsAdmin(false)}>ログアウト</button>
-        ) : (
-          <button className="btn-name" onClick={() => {
-            localStorage.removeItem('qna_user')
-            setUserName('')
-            setUserInput('')
-          }}>
-            {userName}
-          </button>
-        )}
+        <div className="header-right">
+          <span className="user-name">{user.display_name}</span>
+          {isAdmin ? (
+            <button className="btn-logout" onClick={() => setIsAdmin(false)}>ログアウト</button>
+          ) : (
+            <button className="btn-admin-login" onClick={() => setShowLoginForm(!showLoginForm)}>
+              管理者
+            </button>
+          )}
+        </div>
       </div>
+
+      {showLoginForm && !isAdmin && (
+        <div className="login-form">
+          <input
+            className="input"
+            type="password"
+            placeholder="パスワード"
+            value={passwordInput}
+            onChange={e => setPasswordInput(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleLogin()}
+          />
+          <button className="btn-primary" onClick={handleLogin}>ログイン</button>
+          <button className="btn-cancel" onClick={() => setShowLoginForm(false)}>キャンセル</button>
+        </div>
+      )}
 
       {!isAdmin && (
         <div className="question-form">
@@ -255,16 +216,6 @@ function App() {
           </div>
         ))}
       </div>
-
-      {!isAdmin && (
-        <button className="btn-change" onClick={() => {
-          localStorage.removeItem('qna_user')
-          setUserName('')
-          setUserInput('')
-        }}>
-          名前を変更
-        </button>
-      )}
     </div>
   )
 }
