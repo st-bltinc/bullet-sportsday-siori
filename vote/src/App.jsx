@@ -3,25 +3,40 @@ import './App.css'
 
 const API = 'https://wagahai.mixh.jp/2026/vote/api.php'
 const MEMBERS_API = 'https://wagahai.mixh.jp/2026/members/api.php'
-const ADMIN_PASSWORD = 'bullet2026'
+const ME_API = 'https://wagahai.mixh.jp/2026/login/me.php'
 
 function App() {
+  const [user, setUser] = useState(null)
   const [categories, setCategories] = useState([])
   const [members, setMembers] = useState([])
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [votedMap, setVotedMap] = useState({})
   const [results, setResults] = useState([])
   const [isAdmin, setIsAdmin] = useState(false)
-  const [showLoginForm, setShowLoginForm] = useState(false)
-  const [passwordInput, setPasswordInput] = useState('')
   const [newTitle, setNewTitle] = useState('')
   const [newDesc, setNewDesc] = useState('')
   const [newCategoryMembers, setNewCategoryMembers] = useState([])
-  const [voter, setVoter] = useState(() => localStorage.getItem('voter') || '')
-  const [voterInput, setVoterInput] = useState('')
   const [showResults, setShowResults] = useState(false)
   const [search, setSearch] = useState('')
+  const [teamFilter, setTeamFilter] = useState('')
   const [categoryMembers, setCategoryMembers] = useState({})
+  const [voteStats, setVoteStats] = useState({})
+
+  useEffect(() => {
+    fetch(ME_API, { credentials: 'include' })
+      .then(res => {
+        if (res.status === 401) {
+          window.location.href = 'https://wagahai.mixh.jp/2026/login/'
+          return null
+        }
+        return res.json()
+      })
+      .then(data => {
+        if (data) {
+          setUser(data)
+        }
+      })
+  }, [])
 
   useEffect(() => {
     fetchCategories()
@@ -55,8 +70,15 @@ function App() {
       .then(data => setCategoryMembers(prev => ({ ...prev, [categoryId]: data })))
   }
 
+  const fetchVoteStats = (categoryId) => {
+    fetch(`${API}?action=vote_stats&category_id=${categoryId}`)
+      .then(res => res.json())
+      .then(data => setVoteStats(prev => ({ ...prev, [categoryId]: data })))
+  }
+
   const checkVoted = (categoryId) => {
-    fetch(`${API}?action=check&category_id=${categoryId}&voter=${encodeURIComponent(voter)}`)
+    if (!user) return
+    fetch(`${API}?action=check&category_id=${categoryId}&voter=${encodeURIComponent(user.display_name)}`)
       .then(res => res.json())
       .then(data => {
         setVotedMap(prev => ({ ...prev, [categoryId]: data.voted }))
@@ -67,12 +89,14 @@ function App() {
     setSelectedCategory(category)
     setShowResults(false)
     setSearch('')
+    setTeamFilter('')
     setResults([])
-    if (voter) checkVoted(category.id)
+    if (user) checkVoted(category.id)
+    if (isAdmin) fetchVoteStats(category.id)
   }
 
   const handleVote = (candidate) => {
-    if (!voter) return alert('名前を選択してください')
+    if (!user) return
     fetch(API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -80,13 +104,14 @@ function App() {
         action: 'vote',
         category_id: selectedCategory.id,
         candidate,
-        voter
+        voter: user.display_name
       })
     })
       .then(res => res.json())
       .then(data => {
         if (data.success) {
           setVotedMap(prev => ({ ...prev, [selectedCategory.id]: candidate }))
+          if (isAdmin) fetchVoteStats(selectedCategory.id)
         } else {
           alert(data.error)
         }
@@ -100,22 +125,26 @@ function App() {
       body: JSON.stringify({
         action: 'delete_vote',
         category_id: selectedCategory.id,
-        voter
+        voter: user.display_name
       })
     })
       .then(res => res.json())
       .then(() => {
         setVotedMap(prev => ({ ...prev, [selectedCategory.id]: null }))
+        if (isAdmin) fetchVoteStats(selectedCategory.id)
       })
   }
 
-  const handleLogin = () => {
-    if (passwordInput === ADMIN_PASSWORD) {
-      setIsAdmin(true)
-      setShowLoginForm(false)
-      setPasswordInput('')
-    } else {
-      alert('パスワードが違います')
+  const handleTeamFilterChange = (team, targetList, setTargetList) => {
+    setTeamFilter(team)
+    if (team !== '') {
+      const teamMembers = members
+        .filter(m => m.team === team)
+        .map(m => m.name)
+      setTargetList(prev => {
+        const merged = [...new Set([...prev, ...teamMembers])]
+        return merged
+      })
     }
   }
 
@@ -138,6 +167,7 @@ function App() {
         setNewDesc('')
         setNewCategoryMembers([])
         setSearch('')
+        setTeamFilter('')
       })
   }
 
@@ -185,107 +215,59 @@ function App() {
       .then(() => fetchCategoryMembers(categoryId))
   }
 
-  const handleSetVoter = () => {
-    if (!voterInput.trim()) return alert('名前を選択してください')
-    localStorage.setItem('voter', voterInput)
-    setVoter(voterInput)
+  const handleResetCategoryMembers = (categoryId) => {
+    if (!window.confirm('投票対象の選択をリセットしますか？')) return
+    const current = categoryMembers[categoryId] || []
+    Promise.all(current.map(memberName =>
+      fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'remove_category_member',
+          category_id: categoryId,
+          member_name: memberName
+        })
+      })
+    )).then(() => fetchCategoryMembers(categoryId))
   }
+
+  const teams = [...new Set(members.map(m => m.team).filter(Boolean))]
 
   const filteredMembers = (categoryId) => {
     const catMembers = categoryMembers[categoryId] || []
     const available = catMembers.length > 0
       ? members.filter(m => catMembers.includes(m.name))
       : members
-    return available.filter(m =>
-      m.name.includes(search) || (m.yomi && m.yomi.includes(search))
-    )
+    return available.filter(m => {
+      const matchSearch = search === '' || m.name.includes(search) || (m.yomi && m.yomi.includes(search))
+      const matchTeam = teamFilter === '' || m.team === teamFilter
+      return matchSearch && matchTeam
+    })
   }
 
-  if (!voter && !isAdmin) {
-    return (
-      <div className="container">
-        <h1 className="title">投票</h1>
-
-        <div className="admin-login-area">
-          {isAdmin ? (
-            <button className="btn-logout" onClick={() => setIsAdmin(false)}>管理者ログアウト</button>
-          ) : (
-            <button className="btn-admin-login" onClick={() => setShowLoginForm(!showLoginForm)}>管理者ログイン</button>
-          )}
-        </div>
-
-        {showLoginForm && !isAdmin && (
-          <div className="login-form">
-            <input
-              className="input"
-              type="password"
-              placeholder="パスワード"
-              value={passwordInput}
-              onChange={e => setPasswordInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleLogin()}
-            />
-            <button className="btn-primary" onClick={handleLogin}>ログイン</button>
-            <button className="btn-cancel" onClick={() => setShowLoginForm(false)}>キャンセル</button>
-          </div>
-        )}
-
-        <div className="select-form">
-          <p>あなたの名前を選択してください</p>
-          <input
-            className="input"
-            type="text"
-            placeholder="名前を入力して検索"
-            value={voterInput}
-            onChange={e => setVoterInput(e.target.value)}
-          />
-          {voterInput && (
-            <div className="voter-search-list">
-              {members
-                .filter(m => m.name.includes(voterInput) || (m.yomi && m.yomi.includes(voterInput)))
-                .map(m => (
-                  <div
-                    key={m.id}
-                    className="voter-search-item"
-                    onClick={() => setVoterInput(m.name)}
-                  >
-                    {m.name}
-                  </div>
-                ))}
-            </div>
-          )}
-          <button className="btn-primary" onClick={handleSetVoter}>はじめる</button>
-        </div>
-      </div>
-    )
+  const filteredMembersForAdmin = () => {
+    return members.filter(m => {
+      const matchSearch = search === '' || m.name.includes(search) || (m.yomi && m.yomi.includes(search))
+      const matchTeam = teamFilter === '' || m.team === teamFilter
+      return matchSearch && matchTeam
+    })
   }
+
+  if (!user) return <div className="loading">読み込み中...</div>
 
   return (
     <div className="container">
       <div className="header">
         <h1 className="title">投票</h1>
-        {isAdmin ? (
-          <button className="btn-logout" onClick={() => setIsAdmin(false)}>ログアウト</button>
-        ) : (
-          <button className="btn-admin-login" onClick={() => setShowLoginForm(!showLoginForm)}>管理者</button>
-        )}
-      </div>
-
-      {!isAdmin && <div className="voter-name">投票者：{voter}</div>}
-
-      {showLoginForm && !isAdmin && (
-        <div className="login-form">
-          <input
-            className="input"
-            type="password"
-            placeholder="パスワード"
-            value={passwordInput}
-            onChange={e => setPasswordInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleLogin()}
-          />
-          <button className="btn-primary" onClick={handleLogin}>ログイン</button>
-          <button className="btn-cancel" onClick={() => setShowLoginForm(false)}>キャンセル</button>
+        <div className="header-right">
+          <div className="user-name">{user.display_name}</div>
+          {isAdmin ? (
+            <button className="btn-logout" onClick={() => setIsAdmin(false)}>管理者終了</button>
+          ) : user.role === 'admin' ? (
+            <button className="btn-admin-login" onClick={() => setIsAdmin(true)}>管理者</button>
+          ) : null}
         </div>
-      )}
+      </div>
 
       {isAdmin && (
         <div className="admin-form">
@@ -293,16 +275,27 @@ function App() {
           <input className="input" placeholder="タイトル*" value={newTitle} onChange={e => setNewTitle(e.target.value)} />
           <input className="input" placeholder="説明（任意）" value={newDesc} onChange={e => setNewDesc(e.target.value)} />
           <div className="member-select-title">投票対象メンバーを選択（未選択の場合は全員）</div>
-          <input
-            className="input"
-            placeholder="🔍 メンバーを検索"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-          <div className="member-select-list">
-            {members
-              .filter(m => m.name.includes(search) || (m.yomi && m.yomi.includes(search)))
-              .map(m => (
+          <div className="filter-row">
+            <input
+              className="input"
+              placeholder="🔍 名前で検索"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
+            <select
+              className="select"
+              value={teamFilter}
+              onChange={e => handleTeamFilterChange(e.target.value, newCategoryMembers, setNewCategoryMembers)}
+            >
+              <option value="">チーム全て</option>
+              {teams.map(t => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+          </div>
+          {(search !== '' || teamFilter !== '') && (
+            <div className="member-select-list">
+              {filteredMembersForAdmin().map(m => (
                 <div
                   key={m.id}
                   className={`member-select-item ${newCategoryMembers.includes(m.name) ? 'selected' : ''}`}
@@ -317,7 +310,14 @@ function App() {
                   {m.name}
                 </div>
               ))}
-          </div>
+            </div>
+          )}
+          {newCategoryMembers.length > 0 && (
+            <div className="selected-preview-row">
+              <span className="selected-preview">選択中：{newCategoryMembers.length}人</span>
+              <button className="btn-reset-members" onClick={() => setNewCategoryMembers([])}>リセット</button>
+            </div>
+          )}
           <button className="btn-primary" onClick={handleAddCategory}>追加</button>
         </div>
       )}
@@ -333,6 +333,12 @@ function App() {
                 <div className="category-title">{cat.title}</div>
                 {cat.description && <div className="category-desc">{cat.description}</div>}
                 {votedMap[cat.id] && <div className="voted-badge">✓ {votedMap[cat.id]}に投票済み</div>}
+                {isAdmin && voteStats[cat.id] && (
+                  <div className="vote-rate">
+                    投票率：{voteStats[cat.id].voted}/{voteStats[cat.id].total}人
+                    （{Math.round(voteStats[cat.id].voted / voteStats[cat.id].total * 100)}%）
+                  </div>
+                )}
               </div>
               {isAdmin && (
                 <div className="admin-btns">
@@ -350,17 +356,56 @@ function App() {
             {isAdmin && selectedCategory?.id === cat.id && (
               <div className="member-select-area">
                 <div className="member-select-title">投票対象メンバーを編集</div>
-                <div className="member-select-list">
-                  {members.map(m => (
-                    <div
-                      key={m.id}
-                      className={`member-select-item ${(categoryMembers[cat.id] || []).includes(m.name) ? 'selected' : ''}`}
-                      onClick={() => handleToggleCategoryMember(cat.id, m.name)}
-                    >
-                      {m.name}
-                    </div>
-                  ))}
+                <div className="filter-row">
+                  <input
+                    className="input"
+                    placeholder="🔍 名前で検索"
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                  />
+                  <select
+                    className="select"
+                    value={teamFilter}
+                    onChange={e => {
+                      setTeamFilter(e.target.value)
+                      if (e.target.value !== '') {
+                        const teamMembers = members
+                          .filter(m => m.team === e.target.value)
+                          .map(m => m.name)
+                        teamMembers.forEach(memberName => {
+                          const current = categoryMembers[cat.id] || []
+                          if (!current.includes(memberName)) {
+                            handleToggleCategoryMember(cat.id, memberName)
+                          }
+                        })
+                      }
+                    }}
+                  >
+                    <option value="">チーム全て</option>
+                    {teams.map(t => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
                 </div>
+                {(search !== '' || teamFilter !== '') && (
+                  <div className="member-select-list">
+                    {filteredMembersForAdmin().map(m => (
+                      <div
+                        key={m.id}
+                        className={`member-select-item ${(categoryMembers[cat.id] || []).includes(m.name) ? 'selected' : ''}`}
+                        onClick={() => handleToggleCategoryMember(cat.id, m.name)}
+                      >
+                        {m.name}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {(categoryMembers[cat.id] || []).length > 0 && (
+                  <div className="selected-preview-row">
+                    <span className="selected-preview">選択中：{(categoryMembers[cat.id] || []).length}人</span>
+                    <button className="btn-reset-members" onClick={() => handleResetCategoryMembers(cat.id)}>リセット</button>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -380,6 +425,13 @@ function App() {
               </button>
             )}
           </div>
+
+          {isAdmin && voteStats[selectedCategory.id] && (
+            <div className="vote-stats">
+              投票率：{voteStats[selectedCategory.id].voted}/{voteStats[selectedCategory.id].total}人
+              （{Math.round(voteStats[selectedCategory.id].voted / voteStats[selectedCategory.id].total * 100)}%）
+            </div>
+          )}
 
           {showResults && isAdmin ? (
             <div className="results">
@@ -406,9 +458,7 @@ function App() {
               {votedMap[selectedCategory.id] && !showResults ? (
                 <div className="already-voted">
                   <div>✓ {votedMap[selectedCategory.id]}に投票しました</div>
-                  {!isAdmin && (
-                    <button className="btn-change-vote" onClick={handleChangeVote}>投票を変更する</button>
-                  )}
+                  <button className="btn-change-vote" onClick={handleChangeVote}>投票を変更する</button>
                   {selectedCategory.is_published == 1 && (
                     <button className="btn-results-user" onClick={() => {
                       setShowResults(true)
@@ -441,7 +491,7 @@ function App() {
                 </div>
               ) : (
                 <>
-                  {!isAdmin && (
+                  <div className="filter-row">
                     <input
                       className="input search-input"
                       type="text"
@@ -449,13 +499,19 @@ function App() {
                       value={search}
                       onChange={e => setSearch(e.target.value)}
                     />
-                  )}
+                    <select className="select" value={teamFilter} onChange={e => setTeamFilter(e.target.value)}>
+                      <option value="">チーム全て</option>
+                      {teams.map(t => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                  </div>
                   <div className="members-list">
                     {filteredMembers(selectedCategory.id).map(m => (
                       <div
                         key={m.id}
                         className="member-vote-card"
-                        onClick={() => !isAdmin && handleVote(m.name)}
+                        onClick={() => handleVote(m.name)}
                       >
                         <div className="member-avatar">
                           {m.photo ? <img src={m.photo} alt={m.name} /> : <span>{m.name[0]}</span>}
@@ -469,16 +525,6 @@ function App() {
             </div>
           )}
         </div>
-      )}
-
-      {!isAdmin && (
-        <button className="btn-change" onClick={() => {
-          localStorage.removeItem('voter')
-          setVoter('')
-          setVoterInput('')
-        }}>
-          名前を変更
-        </button>
       )}
     </div>
   )

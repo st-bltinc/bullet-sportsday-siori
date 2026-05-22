@@ -461,6 +461,49 @@ body {
     width: 100%;
 }
 
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-admin-login {
+    padding: 0.3rem 0.75rem;
+    background: #555;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    cursor: pointer;
+}
+
+.btn-logout {
+    padding: 0.3rem 0.75rem;
+    background: #aaa;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    cursor: pointer;
+}
+
+.selected-preview-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.btn-reset-members {
+    padding: 0.3rem 0.75rem;
+    background: #aaa;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    cursor: pointer;
+}
+
 @media (max-width: 480px) {
     .container {
         padding: 1rem 0.75rem;
