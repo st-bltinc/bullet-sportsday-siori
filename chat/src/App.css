@@ -6,8 +6,8 @@
 
 body {
     font-family: 'Noto Sans JP', sans-serif;
-    background: #f5f5f5;
-    color: #333;
+    background: #080810;
+    color: #f0f0f8;
     height: 100dvh;
 }
 
@@ -26,6 +26,7 @@ body {
     height: 100dvh;
     font-size: 1rem;
     color: #888;
+    background: #080810;
 }
 
 .header {
@@ -33,30 +34,31 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 1rem;
-    background: #1a1a2e;
-    color: white;
+    background: #0d0d1c;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     flex-shrink: 0;
 }
 
 .btn-room {
-    background: rgba(255, 255, 255, 0.15);
-    color: white;
-    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 8px;
     padding: 0.4rem 0.75rem;
     font-size: 0.85rem;
     cursor: pointer;
     font-weight: 700;
+    font-family: 'Noto Sans JP', sans-serif;
 }
 
 .user-name {
     font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .room-list {
-    background: white;
-    border-bottom: 1px solid #eee;
+    background: #0d0d1c;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     max-height: 70vh;
     overflow-y: auto;
     flex-shrink: 0;
@@ -65,17 +67,10 @@ body {
 .room-section-title {
     font-size: 0.72rem;
     font-weight: 700;
-    color: #aaa;
+    color: #555;
     padding: 0.75rem 1rem 0.3rem;
     letter-spacing: 0.05em;
     display: block;
-}
-
-.room-section-title-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-right: 1rem;
 }
 
 .room-item {
@@ -85,18 +80,19 @@ body {
     padding: 0.65rem 1rem;
     font-size: 0.9rem;
     cursor: pointer;
-    border-bottom: 1px solid #f5f5f5;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     transition: background 0.15s;
+    color: #ccc;
 }
 
 .room-item:hover {
-    background: #f5f5f5;
+    background: rgba(255, 255, 255, 0.04);
 }
 
 .room-item.active {
-    background: #EEF2FF;
+    background: rgba(232, 64, 64, 0.1);
     font-weight: 700;
-    color: #2B6BE8;
+    color: #E84040;
 }
 
 .unread-badge {
@@ -117,9 +113,12 @@ body {
 .dm-search {
     width: 100%;
     padding: 0.5rem 0.75rem;
-    border: 1.5px solid #ddd;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     font-size: 0.85rem;
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    font-family: 'Noto Sans JP', sans-serif;
 }
 
 .room-create-group {
@@ -136,6 +135,7 @@ body {
     font-size: 0.85rem;
     font-weight: 700;
     cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
 }
 
 .create-group-header {
@@ -144,7 +144,8 @@ body {
     align-items: center;
     padding: 0.75rem 1rem;
     font-weight: 700;
-    border-bottom: 1px solid #eee;
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .btn-back {
@@ -172,10 +173,11 @@ body {
 
 .member-select-item {
     padding: 0.3rem 0.75rem;
-    background: #f0f0f0;
+    background: rgba(255, 255, 255, 0.08);
     border-radius: 999px;
     font-size: 0.8rem;
     cursor: pointer;
+    color: #ccc;
 }
 
 .member-select-item.selected {
@@ -198,14 +200,18 @@ body {
     font-weight: 700;
     cursor: pointer;
     width: 100%;
+    font-family: 'Noto Sans JP', sans-serif;
 }
 
 .input {
     padding: 0.6rem 0.9rem;
     border-radius: 8px;
-    border: 1.5px solid #ddd;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     font-size: 0.9rem;
     width: 100%;
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    font-family: 'Noto Sans JP', sans-serif;
 }
 
 .messages {
@@ -215,6 +221,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+    background: #080810;
 }
 
 .message {
@@ -231,11 +238,13 @@ body {
 .message.other {
     align-self: flex-start;
     align-items: flex-start;
+    display: flex;
+    gap: 0.5rem;
 }
 
 .msg-name {
     font-size: 0.72rem;
-    color: #888;
+    color: #666;
     margin-bottom: 0.2rem;
 }
 
@@ -254,10 +263,9 @@ body {
 }
 
 .message.other .msg-bubble {
-    background: white;
-    color: #333;
+    background: rgba(255, 255, 255, 0.08);
+    color: #f0f0f8;
     border-bottom-left-radius: 4px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 .msg-meta {
@@ -274,15 +282,16 @@ body {
 
 .msg-time {
     font-size: 0.7rem;
-    color: #aaa;
+    color: #555;
 }
 
 .input-area {
     display: flex;
+    align-items: center;
     gap: 0.5rem;
     padding: 0.75rem 1rem;
-    background: white;
-    border-top: 1px solid #eee;
+    background: #0d0d1c;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
     flex-shrink: 0;
 }
 
@@ -290,12 +299,17 @@ body {
     flex: 1;
     padding: 0.6rem 0.9rem;
     border-radius: 999px;
-    border: 1.5px solid #ddd;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    font-family: 'Noto Sans JP', sans-serif;
 }
 
 .btn-send {
-    padding: 0.6rem 1.1rem;
+    width: auto;
+    height: 40px;
+    padding: 0 1.2rem;
     background: #E84040;
     color: white;
     border: none;
@@ -303,17 +317,25 @@ body {
     font-size: 0.9rem;
     font-weight: 700;
     cursor: pointer;
-    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    gap: 0.3rem;
 }
 
 .btn-image {
-    padding: 0.6rem 0.75rem;
-    background: #f0f0f0;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.08);
     border: none;
-    border-radius: 999px;
-    font-size: 1rem;
+    border-radius: 50%;
     cursor: pointer;
     flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
 }
 
 .btn-image:disabled {
@@ -337,7 +359,7 @@ body {
     border: none;
     font-size: 0.85rem;
     cursor: pointer;
-    opacity: 0.5;
+    opacity: 0.4;
     padding: 0.2rem;
     flex-shrink: 0;
 }
@@ -349,10 +371,11 @@ body {
 .reaction-picker {
     display: flex;
     gap: 0.3rem;
-    background: white;
+    background: #1a1a2e;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 999px;
     padding: 0.4rem 0.75rem;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
     margin-top: 0.3rem;
 }
 
@@ -378,8 +401,8 @@ body {
 }
 
 .reaction-item {
-    background: #f0f0f0;
-    border: 1.5px solid transparent;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 999px;
     padding: 0.2rem 0.5rem;
     font-size: 0.8rem;
@@ -387,9 +410,63 @@ body {
     display: flex;
     align-items: center;
     gap: 0.2rem;
+    color: #ccc;
 }
 
 .reaction-item.reacted {
-    background: #EEF2FF;
+    background: rgba(43, 107, 232, 0.2);
     border-color: #2B6BE8;
+}
+
+.msg-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: #fff;
+}
+
+.msg-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.msg-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.btn-delete-msg {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.25);
+    font-size: 0.7rem;
+    cursor: pointer;
+    padding: 0 0.2rem;
+    line-height: 1;
+    transition: color 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn-delete-msg:hover {
+    color: #E84040;
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
 }

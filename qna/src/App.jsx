@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { BotMessageSquare, Pencil, Trash2, Send, Loader2 } from 'lucide-react'
 import './App.css'
 
 const API = 'https://wagahai.mixh.jp/2026/qna/api.php'
@@ -21,13 +22,15 @@ function App() {
     fetch(ME_API, { credentials: 'include' })
       .then(res => {
         if (res.status === 401) {
-          window.location.href = 'https://wagahai.mixh.jp/2026/login/'
+          const redirect = encodeURIComponent(window.location.href)
+          window.location.href = `https://wagahai.mixh.jp/2026/login/?redirect=${redirect}`
           return null
         }
         return res.json()
       })
       .then(data => {
         if (data) setUser(data)
+        // 初期表示は必ずユーザーモード（adminでも自動で管理者モードにしない）
       })
   }, [])
 
@@ -68,11 +71,7 @@ function App() {
     fetch(API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'edit_answer',
-        id,
-        answer: answer.trim()
-      })
+      body: JSON.stringify({ action: 'edit_answer', id, answer: answer.trim() })
     })
       .then(r => r.json())
       .then(() => {
@@ -113,15 +112,18 @@ function App() {
   return (
     <div className="container">
       <div className="header">
-        <h1 className="title">❓ Q&A</h1>
+        <div className="page-header-accent" /><h1 className="title">Q&A</h1>
         <div className="header-right">
           <span className="user-name">{user.display_name}</span>
           {isAdmin ? (
-            <button className="btn-logout" onClick={() => setIsAdmin(false)}>ログアウト</button>
+            // 管理者モード中：終了ボタン
+            <button className="btn-logout" onClick={() => setIsAdmin(false)}>管理者終了</button>
+          ) : user.role === 'admin' ? (
+            // roleがadmin：パスワードなしで1クリック
+            <button className="btn-admin-login" onClick={() => setIsAdmin(true)}>管理者</button>
           ) : (
-            <button className="btn-admin-login" onClick={() => setShowLoginForm(!showLoginForm)}>
-              管理者
-            </button>
+            // 一般ユーザー：パスワード入力
+            <button className="btn-admin-login" onClick={() => setShowLoginForm(!showLoginForm)}>管理者ログイン</button>
           )}
         </div>
       </div>
@@ -151,7 +153,7 @@ function App() {
             rows={3}
           />
           <button className="btn-primary" onClick={handleQuestion} disabled={sending}>
-            {sending ? 'AI回答を生成中...' : '質問する'}
+            {sending ? <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Loader2 size={15} strokeWidth={1.8} style={{ animation: 'spin 1s linear infinite' }} />AI回答を生成中...</span> : <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Send size={15} strokeWidth={1.8} />質問する</span>}
           </button>
         </div>
       )}
@@ -170,7 +172,7 @@ function App() {
             {item.answer ? (
               <div className="qna-answer">
                 <div className="qna-a-label">
-                  {item.is_ai == 1 ? '🤖 AI回答' : '✏️ 編集済み回答'}
+                  {item.is_ai == 1 ? <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><BotMessageSquare size={14} strokeWidth={1.8} />AI回答</span> : <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Pencil size={14} strokeWidth={1.8} />編集済み回答</span>}
                 </div>
                 <div className="qna-a-text">{item.answer}</div>
               </div>
@@ -190,12 +192,8 @@ function App() {
                       rows={3}
                     />
                     <div className="admin-answer-btns">
-                      <button className="btn-primary" onClick={() => handleEditAnswer(item.id)}>
-                        保存
-                      </button>
-                      <button className="btn-cancel" onClick={() => setEditTarget(null)}>
-                        キャンセル
-                      </button>
+                      <button className="btn-primary" onClick={() => handleEditAnswer(item.id)}>保存</button>
+                      <button className="btn-cancel" onClick={() => setEditTarget(null)}>キャンセル</button>
                     </div>
                   </>
                 ) : (
@@ -203,12 +201,8 @@ function App() {
                     <button className="btn-edit-answer" onClick={() => {
                       setEditTarget(item.id)
                       setEditInputs(prev => ({ ...prev, [item.id]: item.answer || '' }))
-                    }}>
-                      ✏️ 編集
-                    </button>
-                    <button className="btn-delete-answer" onClick={() => handleDelete(item.id)}>
-                      🗑️ 削除
-                    </button>
+                    }}><span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Pencil size={13} strokeWidth={1.8} />編集</span></button>
+                    <button className="btn-delete-answer" onClick={() => handleDelete(item.id)}><span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Trash2 size={13} strokeWidth={1.8} />削除</span></button>
                   </div>
                 )}
               </div>
@@ -216,6 +210,7 @@ function App() {
           </div>
         ))}
       </div>
+      <a href="https://wagahai.mixh.jp/2026/" className="home-fab"><img src="/2026/logo-home.png" alt="ホーム" style={{ width: '60px', height: '60px', objectFit: 'contain' }} /></a>
     </div>
   )
 }

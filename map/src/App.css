@@ -6,8 +6,8 @@
 
 body {
     font-family: 'Noto Sans JP', sans-serif;
-    background: #f5f5f5;
-    color: #333;
+    background: #080810;
+    color: #f0f0f8;
 }
 
 .container {
@@ -16,11 +16,26 @@ body {
     padding: 1.5rem 1rem;
 }
 
+.page-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+}
+
+.page-header-accent {
+    width: 4px;
+    height: 22px;
+    background: #E84040;
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(232, 64, 64, 0.6);
+    flex-shrink: 0;
+}
+
 .title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #1a1a2e;
-    margin-bottom: 1.5rem;
+    color: #fff;
 }
 
 .loading {
@@ -30,6 +45,7 @@ body {
     height: 100vh;
     font-size: 1rem;
     color: #888;
+    background: #080810;
 }
 
 .venue-list {
@@ -43,21 +59,20 @@ body {
     display: flex;
     align-items: center;
     gap: 1rem;
-    background: white;
+    background: rgba(255, 255, 255, 0.04);
     border-radius: 12px;
     padding: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     cursor: pointer;
-    border: 2px solid transparent;
     transition: border-color 0.2s;
 }
 
 .venue-card.active {
     border-color: #E84040;
+    background: rgba(232, 64, 64, 0.08);
 }
 
 .venue-time {
-    font-family: 'Oswald', sans-serif;
     font-size: 1rem;
     font-weight: 700;
     color: #E84040;
@@ -71,7 +86,7 @@ body {
 .venue-name {
     font-size: 0.95rem;
     font-weight: 700;
-    color: #1a1a2e;
+    color: #fff;
 }
 
 .venue-desc {
@@ -82,20 +97,20 @@ body {
 
 .venue-address {
     font-size: 0.75rem;
-    color: #aaa;
+    color: #555;
     margin-top: 0.2rem;
 }
 
 .venue-arrow {
-    color: #aaa;
+    color: #555;
     font-size: 1rem;
 }
 
 .map-area {
-    background: white;
+    background: rgba(255, 255, 255, 0.04);
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .map-header {
@@ -103,12 +118,13 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .map-title {
     font-size: 0.9rem;
     font-weight: 700;
+    color: #fff;
 }
 
 .btn-route {
@@ -123,7 +139,8 @@ body {
 }
 
 .btn-route:disabled {
-    background: #aaa;
+    background: #444;
+    color: #888;
 }
 
 .map {
@@ -133,14 +150,14 @@ body {
 
 .route-info {
     padding: 1rem;
-    border-top: 1px solid #eee;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .route-summary {
     font-size: 0.9rem;
     font-weight: 700;
     margin-bottom: 0.75rem;
-    color: #1a1a2e;
+    color: #fff;
 }
 
 .route-steps {
@@ -151,9 +168,9 @@ body {
 
 .route-step {
     font-size: 0.8rem;
-    color: #555;
+    color: #aaa;
     padding: 0.4rem 0;
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
     line-height: 1.5;
 }
 
@@ -161,25 +178,47 @@ body {
     display: flex;
     gap: 0.5rem;
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .btn-mode {
     flex: 1;
     padding: 0.5rem;
-    background: #f0f0f0;
-    color: #555;
-    border: none;
+    background: rgba(255, 255, 255, 0.06);
+    color: #aaa;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 500;
     cursor: pointer;
     transition: background 0.15s, color 0.15s;
+    font-family: 'Noto Sans JP', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .btn-mode.active {
     background: #E84040;
     color: white;
+    border-color: #E84040;
+}
+
+.home-fab {
+    position: fixed;
+    bottom: 32px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #080810;
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    z-index: 9999;
 }
 
 @media (max-width: 480px) {

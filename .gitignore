@@ -1,3 +1,6 @@
+.env
+qna/test_api.php
+
 # Logs
 logs
 *.log

@@ -6,8 +6,8 @@
 
 body {
     font-family: 'Noto Sans JP', sans-serif;
-    background: #f5f5f5;
-    color: #333;
+    background: #080810;
+    color: #f0f0f8;
 }
 
 .container {
@@ -18,19 +18,19 @@ body {
 
 .header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 0.6rem;
     margin-bottom: 1.5rem;
 }
 
 .title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #1a1a2e;
+    color: #fff;
 }
 
 .btn-name {
-    background: #f0f0f0;
+    background: rgba(255, 255, 255, 0.06);
     border: none;
     border-radius: 999px;
     padding: 0.4rem 0.75rem;
@@ -58,36 +58,20 @@ body {
     cursor: pointer;
 }
 
-.admin-login-area {
-    margin-bottom: 1rem;
-}
-
 .login-form {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
     margin-bottom: 1rem;
-    background: white;
+    background: rgba(255, 255, 255, 0.04);
     padding: 1rem;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-.name-form {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-top: 1rem;
-}
-
-.name-form p {
-    font-size: 0.95rem;
-    color: #555;
-}
-
 .input {
     padding: 0.75rem 1rem;
-    border: 1.5px solid #ddd;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     font-size: 0.95rem;
     width: 100%;
@@ -95,7 +79,7 @@ body {
 
 .textarea {
     padding: 0.75rem 1rem;
-    border: 1.5px solid #ddd;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     font-size: 0.9rem;
     width: 100%;
@@ -145,7 +129,7 @@ body {
     flex-direction: column;
     gap: 0.75rem;
     margin-bottom: 1.5rem;
-    background: white;
+    background: rgba(255, 255, 255, 0.04);
     padding: 1rem;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -158,7 +142,7 @@ body {
 }
 
 .qna-item {
-    background: white;
+    background: rgba(255, 255, 255, 0.04);
     border-radius: 12px;
     padding: 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -183,24 +167,24 @@ body {
 .qna-user {
     font-size: 0.78rem;
     font-weight: 700;
-    color: #555;
+    color: #666;
 }
 
 .qna-date {
     font-size: 0.75rem;
-    color: #aaa;
+    color: #666;
 }
 
 .qna-q-text {
     font-size: 0.9rem;
     font-weight: 500;
-    color: #1a1a2e;
+    color: #fff;
 }
 
 .qna-answer {
     margin-top: 0.75rem;
     padding-top: 0.75rem;
-    border-top: 1px solid #eee;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .qna-a-label {
@@ -212,7 +196,7 @@ body {
 
 .qna-a-text {
     font-size: 0.88rem;
-    color: #444;
+    color: #fff;
     line-height: 1.6;
 }
 
@@ -226,7 +210,7 @@ body {
 .admin-answer-form {
     margin-top: 0.75rem;
     padding-top: 0.75rem;
-    border-top: 1px solid #eee;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
@@ -244,8 +228,8 @@ body {
 .btn-edit-answer {
     flex: 1;
     padding: 0.5rem;
-    background: #f0f0f0;
-    color: #555;
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
     border: none;
     border-radius: 8px;
     font-size: 0.85rem;
@@ -263,28 +247,6 @@ body {
     cursor: pointer;
 }
 
-.voter-search-list {
-    background: white;
-    border-radius: 10px;
-    border: 1.5px solid #ddd;
-    overflow: hidden;
-}
-
-.voter-search-item {
-    padding: 0.75rem 1rem;
-    font-size: 0.95rem;
-    cursor: pointer;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.voter-search-item:last-child {
-    border-bottom: none;
-}
-
-.voter-search-item:hover {
-    background: #f5f5f5;
-}
-
 .loading {
     display: flex;
     align-items: center;
@@ -298,6 +260,7 @@ body {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    margin-left: auto;
 }
 
 .user-name {
@@ -305,8 +268,47 @@ body {
     color: #888;
 }
 
+.home-fab {
+    position: fixed;
+    bottom: 32px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #080810;
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    text-decoration: none;
+    z-index: 9999;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.home-fab:active {
+    transform: scale(0.92);
+}
+
 @media (max-width: 480px) {
     .container {
         padding: 1rem 0.75rem;
+    }
+}
+
+.page-header-accent {
+    width: 4px;
+    height: 22px;
+    background: #E84040;
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(232, 64, 64, 0.6);
+    flex-shrink: 0;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
     }
 }

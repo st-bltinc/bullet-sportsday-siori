@@ -6,8 +6,8 @@
 
 body {
     font-family: 'Noto Sans JP', sans-serif;
-    background: #f5f5f5;
-    color: #333;
+    background: #080810;
+    color: #f0f0f8;
 }
 
 .container {
@@ -18,15 +18,15 @@ body {
 
 .header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 0.6rem;
     margin-bottom: 1.5rem;
 }
 
 .title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #1a1a2e;
+    color: #fff;
 }
 
 .btn-admin-login {
@@ -54,15 +54,15 @@ body {
     flex-direction: column;
     gap: 0.75rem;
     margin-bottom: 1rem;
-    background: white;
+    background: rgba(255, 255, 255, 0.04);
     padding: 1rem;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
 }
 
 .input {
     padding: 0.75rem 1rem;
-    border: 1.5px solid #ddd;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10px;
     font-size: 0.95rem;
     width: 100%;
@@ -127,7 +127,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: white;
+    background: rgba(255, 255, 255, 0.04);
     border-radius: 10px;
     padding: 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -137,7 +137,7 @@ body {
 
 .list-item.checked .item-text {
     text-decoration: line-through;
-    color: #aaa;
+    color: #666;
 }
 
 .list-item.checked .checkbox {
@@ -179,7 +179,7 @@ body {
 .btn-delete-item {
     background: none;
     border: none;
-    color: #aaa;
+    color: #666;
     font-size: 1rem;
     cursor: pointer;
     padding: 0.25rem;
@@ -198,18 +198,6 @@ body {
 .add-form .btn-primary {
     width: auto;
     padding: 0.75rem 1rem;
-}
-
-.btn-reset {
-    width: 100%;
-    padding: 0.75rem;
-    background: #aaa;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    cursor: pointer;
 }
 
 .loading {
@@ -254,12 +242,12 @@ body {
 .stats-header {
     font-size: 0.85rem;
     font-weight: 700;
-    color: #555;
+    color: #666;
     margin-bottom: 0.5rem;
 }
 
 .stats-item {
-    background: white;
+    background: rgba(255, 255, 255, 0.04);
     border-radius: 12px;
     padding: 0.75rem 1rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -285,7 +273,7 @@ body {
 
 .stats-bar {
     height: 6px;
-    background: #f0f0f0;
+    background: rgba(255, 255, 255, 0.06);
     border-radius: 999px;
     overflow: hidden;
     margin-bottom: 0.5rem;
@@ -306,14 +294,47 @@ body {
 
 .stats-user-tag {
     font-size: 0.72rem;
-    background: #f0f0f0;
+    background: rgba(255, 255, 255, 0.06);
     padding: 0.2rem 0.5rem;
     border-radius: 999px;
-    color: #555;
+    color: #666;
+}
+
+.home-fab {
+    position: fixed;
+    bottom: 32px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #080810;
+    box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    text-decoration: none;
+    z-index: 9999;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.home-fab:active {
+    transform: scale(0.92);
 }
 
 @media (max-width: 480px) {
     .container {
         padding: 1rem 0.75rem;
     }
+}
+
+.page-header-accent {
+    width: 4px;
+    height: 22px;
+    background: #E84040;
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(232, 64, 64, 0.6);
+    flex-shrink: 0;
 }

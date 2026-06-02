@@ -13,7 +13,7 @@ require 'db.php';
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-$OPENAI_API_KEY = '';
+$OPENAI_API_KEY = getenv('OPENAI_API_KEY') ?: '';
 
 function getAiAnswer($question, $apiKey)
 {

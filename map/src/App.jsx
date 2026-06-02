@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { Footprints, Car, Bus, TramFront, ChevronRight } from 'lucide-react'
 import { GoogleMap, useJsApiLoader, Marker, DirectionsRenderer } from '@react-google-maps/api'
 import './App.css'
 
@@ -37,9 +38,10 @@ const venues = [
 const libraries = ['places']
 
 const travelModes = [
-  { label: '🚶 徒歩', value: 'WALKING' },
-  { label: '🚗 車', value: 'DRIVING' },
-  { label: '🚃 電車', value: 'TRANSIT' },
+  { label: '徒歩', value: 'WALKING', lucide: Footprints },
+  { label: '車', value: 'DRIVING', lucide: Car },
+  { label: 'バス', value: 'BUS', lucide: Bus },
+  { label: '電車', value: 'TRANSIT', lucide: TramFront },
 ]
 
 function App() {
@@ -47,7 +49,7 @@ function App() {
   const [directions, setDirections] = useState(null)
   const [userLocation, setUserLocation] = useState(null)
   const [loadingRoute, setLoadingRoute] = useState(false)
-  const [travelMode, setTravelMode] = useState('TRANSIT')
+  const [travelMode, setTravelMode] = useState('WALKING')
 
   const { isLoaded } = useJsApiLoader({
     googleMapsApiKey: API_KEY,
@@ -78,12 +80,15 @@ function App() {
     )
   }, [userLocation])
 
-  const openGoogleMaps = (venue) => {
+  const openGoogleMaps = (venue, mode) => {
+    const modeMap = { TRANSIT: 'transit', BUS: 'transit', DRIVING: 'driving', WALKING: 'walking' }
+    const gmMode = modeMap[mode] || 'transit'
+    const busParam = mode === 'BUS' ? '&travelmode=transit&dirflg=b' : `&travelmode=${gmMode}`
     if (userLocation) {
-      const url = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${venue.lat},${venue.lng}&travelmode=transit`
+      const url = `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${venue.lat},${venue.lng}${busParam}`
       window.open(url, '_blank')
     } else {
-      const url = `https://www.google.com/maps/dir/?api=1&destination=${venue.lat},${venue.lng}&travelmode=transit`
+      const url = `https://www.google.com/maps/dir/?api=1&destination=${venue.lat},${venue.lng}${busParam}`
       window.open(url, '_blank')
     }
   }
@@ -97,11 +102,7 @@ function App() {
           setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude })
         },
         () => alert('位置情報の取得に失敗しました'),
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       )
     } else {
       alert('位置情報がサポートされていません')
@@ -111,7 +112,11 @@ function App() {
   const handleTravelMode = (mode) => {
     setTravelMode(mode)
     if (selected && userLocation) {
-      getRoute(selected, mode)
+      if (mode === 'TRANSIT' || mode === 'BUS') {
+        openGoogleMaps(selected, mode)
+      } else {
+        getRoute(selected, mode)
+      }
     }
   }
 
@@ -119,7 +124,10 @@ function App() {
 
   return (
     <div className="container">
-      <h1 className="title">会場MAP</h1>
+      <div className="page-header">
+        <div className="page-header-accent" />
+        <h1 className="title">会場MAP</h1>
+      </div>
 
       <div className="venue-list">
         {venues.map(venue => (
@@ -134,7 +142,7 @@ function App() {
               <div className="venue-desc">{venue.description}</div>
               <div className="venue-address">{venue.address}</div>
             </div>
-            <div className="venue-arrow">→</div>
+            <div className="venue-arrow"><ChevronRight size={18} strokeWidth={1.8} /></div>
           </div>
         ))}
       </div>
@@ -146,7 +154,13 @@ function App() {
             {userLocation && (
               <button
                 className="btn-route"
-                onClick={() => getRoute(selected, travelMode)}
+                onClick={() => {
+                  if (travelMode === 'TRANSIT' || travelMode === 'BUS') {
+                    openGoogleMaps(selected, travelMode)
+                  } else {
+                    getRoute(selected, travelMode)
+                  }
+                }}
                 disabled={loadingRoute}
               >
                 {loadingRoute ? '検索中...' : '経路を表示'}
@@ -159,15 +173,9 @@ function App() {
               <button
                 key={mode.value}
                 className={`btn-mode ${travelMode === mode.value ? 'active' : ''}`}
-                onClick={() => {
-                  if (mode.value === 'TRANSIT') {
-                    openGoogleMaps(selected)
-                  } else {
-                    handleTravelMode(mode.value)
-                  }
-                }}
+                onClick={() => handleTravelMode(mode.value)}
               >
-                {mode.label}
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>{(() => { const Icon = mode.lucide; return <Icon size={16} strokeWidth={1.8} /> })()}{mode.label}</span>
               </button>
             ))}
           </div>
@@ -185,7 +193,7 @@ function App() {
           {directions && (
             <div className="route-info">
               <div className="route-summary">
-                {travelModes.find(m => m.value === travelMode)?.label}
+                {(() => { const mode = travelModes.find(m => m.value === travelMode); if (!mode) return null; const Icon = mode.lucide; return <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', marginRight: '0.3rem' }}><Icon size={15} strokeWidth={1.8} />{mode.label}</span> })()}
                 {directions.routes[0].legs[0].duration.text}（{directions.routes[0].legs[0].distance.text}）
               </div>
               <div className="route-steps">
@@ -197,6 +205,8 @@ function App() {
           )}
         </div>
       )}
+
+      <a href="https://wagahai.mixh.jp/2026/" className="home-fab"><img src="/2026/logo-home.png" alt="ホーム" style={{ width: '60px', height: '60px', objectFit: 'contain' }} /></a>
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { ListCheck, SquareCheckBig, Check, X } from 'lucide-react'
 import './App.css'
 
 const API = 'https://wagahai.mixh.jp/2026/checklist/api.php'
@@ -16,7 +17,6 @@ function App() {
   const [showStats, setShowStats] = useState(false)
   const [totalUsers, setTotalUsers] = useState(0)
 
-  // ログイン確認
   useEffect(() => {
     fetch(ME_API, { credentials: 'include' })
       .then(res => {
@@ -34,18 +34,11 @@ function App() {
       })
   }, [])
 
-  useEffect(() => {
-    fetchItems()
-  }, [])
-
-  useEffect(() => {
-    if (user) fetchChecks()
-  }, [user])
+  useEffect(() => { fetchItems() }, [])
+  useEffect(() => { if (user) fetchChecks() }, [user])
 
   const fetchItems = () => {
-    fetch(`${API}?action=items`)
-      .then(res => res.json())
-      .then(data => setItems(data))
+    fetch(`${API}?action=items`).then(res => res.json()).then(data => setItems(data))
   }
 
   const fetchChecks = () => {
@@ -55,12 +48,8 @@ function App() {
   }
 
   const fetchStats = () => {
-    fetch(`${API}?action=stats`)
-      .then(res => res.json())
-      .then(data => setStats(data))
-    fetch(`${API}?action=total_users`)
-      .then(res => res.json())
-      .then(data => setTotalUsers(data.total))
+    fetch(`${API}?action=stats`).then(res => res.json()).then(data => setStats(data))
+    fetch(`${API}?action=total_users`).then(res => res.json()).then(data => setTotalUsers(data.total))
   }
 
   const toggleCheck = (itemId) => {
@@ -68,31 +57,20 @@ function App() {
     fetch(API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'toggle',
-        item_id: itemId,
-        user_name: user.display_name
-      })
+      body: JSON.stringify({ action: 'toggle', item_id: itemId, user_name: user.display_name })
     })
       .then(res => res.json())
       .then(data => {
-        if (data.checked) {
-          setChecks(prev => [...prev, itemId])
-        } else {
-          setChecks(prev => prev.filter(id => id !== itemId))
-        }
+        if (data.checked) setChecks(prev => [...prev, itemId])
+        else setChecks(prev => prev.filter(id => id !== itemId))
         if (showStats) fetchStats()
       })
   }
 
   const handleLogin = () => {
     if (passwordInput === 'bullet2026') {
-      setIsAdmin(true)
-      setShowLoginForm(false)
-      setPasswordInput('')
-    } else {
-      alert('パスワードが違います')
-    }
+      setIsAdmin(true); setShowLoginForm(false); setPasswordInput('')
+    } else { alert('パスワードが違います') }
   }
 
   const handleAddItem = () => {
@@ -101,12 +79,7 @@ function App() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'add_item', text: newItem.trim() })
-    })
-      .then(res => res.json())
-      .then(() => {
-        fetchItems()
-        setNewItem('')
-      })
+    }).then(res => res.json()).then(() => { fetchItems(); setNewItem('') })
   }
 
   const handleDeleteItem = (id) => {
@@ -115,11 +88,7 @@ function App() {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id })
-    })
-      .then(() => {
-        fetchItems()
-        setChecks(prev => prev.filter(cid => cid !== id))
-      })
+    }).then(() => { fetchItems(); setChecks(prev => prev.filter(cid => cid !== id)) })
   }
 
   const handleShowStats = () => {
@@ -134,7 +103,7 @@ function App() {
   return (
     <div className="container">
       <div className="header">
-        <h1 className="title">持ち物チェックリスト</h1>
+        <div className="page-header-accent" /><h1 className="title">持ち物チェックリスト</h1>
         <div className="header-right">
           <span className="user-name">{user.display_name}</span>
           {isAdmin ? (
@@ -149,14 +118,8 @@ function App() {
 
       {showLoginForm && !isAdmin && (
         <div className="login-form">
-          <input
-            className="input"
-            type="password"
-            placeholder="パスワード"
-            value={passwordInput}
-            onChange={e => setPasswordInput(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && handleLogin()}
-          />
+          <input className="input" type="password" placeholder="パスワード" value={passwordInput}
+            onChange={e => setPasswordInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleLogin()} />
           <button className="btn-primary" onClick={handleLogin}>ログイン</button>
           <button className="btn-cancel" onClick={() => setShowLoginForm(false)}>キャンセル</button>
         </div>
@@ -165,16 +128,13 @@ function App() {
       <div className="progress-area">
         <div className="progress-text">{checkedCount} / {items.length} 完了</div>
         <div className="progress-bar">
-          <div
-            className="progress-fill"
-            style={{ width: `${items.length ? (checkedCount / items.length) * 100 : 0}%` }}
-          />
+          <div className="progress-fill" style={{ width: `${items.length ? (checkedCount / items.length) * 100 : 0}%` }} />
         </div>
       </div>
 
       {isAdmin && (
         <button className="btn-stats" onClick={handleShowStats}>
-          {showStats ? '📋 チェックリストに戻る' : '📊 全員のチェック状況を見る'}
+          {showStats ? <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><ListCheck size={16} strokeWidth={1.8} />チェックリストに戻る</span> : <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><SquareCheckBig size={16} strokeWidth={1.8} />全員のチェック状況を見る</span>}
         </button>
       )}
 
@@ -190,14 +150,10 @@ function App() {
                   <span className="stats-item-text">{item.text}</span>
                   <span className="stats-item-count">{checkedUsers.length}人 ({rate}%)</span>
                 </div>
-                <div className="stats-bar">
-                  <div className="stats-fill" style={{ width: `${rate}%` }} />
-                </div>
+                <div className="stats-bar"><div className="stats-fill" style={{ width: `${rate}%` }} /></div>
                 {checkedUsers.length > 0 && (
                   <div className="stats-users">
-                    {checkedUsers.map((name, i) => (
-                      <span key={i} className="stats-user-tag">{name}</span>
-                    ))}
+                    {checkedUsers.map((name, i) => <span key={i} className="stats-user-tag">{name}</span>)}
                   </div>
                 )}
               </div>
@@ -211,32 +167,24 @@ function App() {
               <div key={item.id} className={`list-item ${checks.includes(Number(item.id)) ? 'checked' : ''}`}>
                 <div className="list-item-left" onClick={() => toggleCheck(Number(item.id))}>
                   <div className="checkbox">
-                    {checks.includes(Number(item.id)) && <span className="check-icon">✓</span>}
+                    {checks.includes(Number(item.id)) && <span className="check-icon"><Check size={14} strokeWidth={2.5} /></span>}
                   </div>
                   <span className="item-text">{item.text}</span>
                 </div>
-                {isAdmin && (
-                  <button className="btn-delete-item" onClick={() => handleDeleteItem(item.id)}>✕</button>
-                )}
+                {isAdmin && <button className="btn-delete-item" onClick={() => handleDeleteItem(item.id)}><X size={14} strokeWidth={2} /></button>}
               </div>
             ))}
           </div>
-
           {isAdmin && (
             <div className="add-form">
-              <input
-                className="input"
-                type="text"
-                placeholder="新しい持ち物を追加"
-                value={newItem}
-                onChange={e => setNewItem(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleAddItem()}
-              />
+              <input className="input" type="text" placeholder="新しい持ち物を追加" value={newItem}
+                onChange={e => setNewItem(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleAddItem()} />
               <button className="btn-primary" onClick={handleAddItem}>追加</button>
             </div>
           )}
         </>
       )}
+      <a href="https://wagahai.mixh.jp/2026/" className="home-fab"><img src="/2026/logo-home.png" alt="ホーム" style={{ width: '60px', height: '60px', objectFit: 'contain' }} /></a>
     </div>
   )
 }

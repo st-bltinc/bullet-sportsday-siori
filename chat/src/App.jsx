@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
+import { Camera, Send, X, Users, Plus, ChevronDown, Loader2, MessageCircle, User, Search, ArrowLeft, SmilePlus, Flag, Hash } from 'lucide-react'
 import { db } from './firebase'
-import { ref, push, onValue, serverTimestamp, set, get, update } from 'firebase/database'
+import { ref, push, onValue, serverTimestamp, set, get, update, remove } from 'firebase/database'
 import './App.css'
 
 const ME_API = 'https://wagahai.mixh.jp/2026/login/me.php'
@@ -9,7 +10,9 @@ const MEMBERS_API = 'https://wagahai.mixh.jp/2026/members/api.php'
 function App() {
   const [user, setUser] = useState(null)
   const [members, setMembers] = useState([])
+  const [memberPhotoMap, setMemberPhotoMap] = useState({}) // ★ 名前→写真マップ
   const [messages, setMessages] = useState([])
+  const [memberTeamMap, setMemberTeamMap] = useState({})
   const [text, setText] = useState('')
   const [currentRoom, setCurrentRoom] = useState('general')
   const [currentRoomType, setCurrentRoomType] = useState('channel')
@@ -47,16 +50,34 @@ function App() {
   useEffect(() => {
     fetch(MEMBERS_API)
       .then(res => res.json())
-      .then(data => setMembers(data))
+      .then(data => {
+        setMembers(data)
+        // ★ 名前→写真のマップを作成
+        const photoMap = {}
+        const teamMap = {}
+        data.forEach(m => {
+          if (m.photo) photoMap[m.name] = m.photo
+          if (m.team) teamMap[m.name] = m.team
+        })
+        setMemberPhotoMap(photoMap)
+        setMemberTeamMap(teamMap)
+      })
   }, [])
 
+  const TEAM_COLORS_MAP = {
+    '赤チーム': '#FF5C8A',
+    '青チーム': '#4088E8',
+    '緑チーム': '#40C84A',
+    '黄色チーム': '#C8A040',
+  }
   const channels = members.length > 0 ? [
-    { id: 'general', label: '💬 全体' },
+    { id: 'general', label: '全体', color: null },
     ...([...new Set(members.map(m => m.team).filter(Boolean))].map(t => ({
       id: `team_${t}`,
-      label: `🏃 ${t}`
+      label: t,
+      color: TEAM_COLORS_MAP[t] || '#888'
     })))
-  ] : [{ id: 'general', label: '💬 全体' }]
+  ] : [{ id: 'general', label: '全体', color: null }]
 
   useEffect(() => {
     if (!user) return
@@ -220,6 +241,13 @@ function App() {
     const file = e.target.files[0]
     if (!file || !user) return
 
+    const allowed = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
+    if (!allowed.includes(file.type)) {
+      alert('JPG・PNG・GIF・WebP形式の画像のみ送信できます')
+      fileInputRef.current.value = ''
+      return
+    }
+
     setUploading(true)
     try {
       const formData = new FormData()
@@ -286,15 +314,39 @@ function App() {
   }
 
   const currentRoomLabel = currentRoomType === 'dm'
-    ? `💬 ${dmTarget}`
+    ? dmTarget
     : currentRoomType === 'group'
-      ? `👥 ${customGroups.find(g => g.id === currentRoom)?.name || 'グループ'}`
-      : channels.find(r => r.id === currentRoom)?.label || '💬 全体'
+      ? (customGroups.find(g => g.id === currentRoom)?.name || 'グループ')
+      : channels.find(r => r.id === currentRoom)?.label || '全体'
 
   const filteredDmMembers = members.filter(m =>
     m.name !== user?.display_name &&
     (dmSearch === '' || m.name.includes(dmSearch) || (m.yomi && m.yomi.includes(dmSearch)))
   )
+
+  // ★ メッセージアバターコンポーネント
+  const TEAM_COLORS = {
+    '赤チーム': { color: '#E84040', glow: 'rgba(232,64,64,0.5)' },
+    '青チーム': { color: '#4088E8', glow: 'rgba(64,136,232,0.5)' },
+    '緑チーム': { color: '#40C84A', glow: 'rgba(64,200,74,0.5)' },
+    '黄色チーム': { color: '#C8A040', glow: 'rgba(200,160,64,0.5)' },
+  }
+  const MsgAvatar = ({ name }) => {
+    const photo = memberPhotoMap[name]
+    const team = memberTeamMap[name]
+    const tc = TEAM_COLORS[team]
+    const borderStyle = tc
+      ? { border: `2px solid ${tc.color}`, boxShadow: `0 0 6px ${tc.glow}` }
+      : { border: '2px solid rgba(255,255,255,0.15)' }
+    return (
+      <div className="msg-avatar" style={borderStyle}>
+        {photo
+          ? <img src={photo} alt={name} />
+          : <span style={tc ? { color: tc.color } : {}}>{name?.[0] ?? '?'}</span>
+        }
+      </div>
+    )
+  }
 
   if (!user) return <div className="loading">読み込み中...</div>
 
@@ -305,7 +357,7 @@ function App() {
           setShowRoomList(!showRoomList)
           setShowCreateGroup(false)
         }}>
-          {currentRoomLabel} ▼
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>{currentRoomLabel} <ChevronDown size={14} strokeWidth={2} /></span>
         </button>
         <div className="user-name">{user.display_name}</div>
       </div>
@@ -324,7 +376,7 @@ function App() {
                 setShowRoomList(false)
               }}
             >
-              <span>{room.label}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>{room.color ? <Flag size={13} strokeWidth={1.8} color={room.color} /> : <Hash size={13} strokeWidth={1.8} color="#888" />}{room.label}</span>
               {unreadMap[room.id] > 0 && <span className="unread-badge">{unreadMap[room.id]}</span>}
             </div>
           ))}
@@ -343,7 +395,7 @@ function App() {
                     setShowRoomList(false)
                   }}
                 >
-                  <span>👥 {g.name}</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Users size={14} strokeWidth={1.8} />{g.name}</span>
                   {unreadMap[g.id] > 0 && <span className="unread-badge">{unreadMap[g.id]}</span>}
                 </div>
               ))}
@@ -352,7 +404,7 @@ function App() {
 
           <div className="room-create-group">
             <button className="btn-create-group" onClick={() => setShowCreateGroup(true)}>
-              ＋ グループを作成
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Plus size={14} strokeWidth={2} />グループを作成</span>
             </button>
           </div>
 
@@ -361,7 +413,7 @@ function App() {
             <input
               className="dm-search"
               type="text"
-              placeholder="🔍 名前で検索"
+              placeholder="名前で検索"
               value={dmSearch}
               onChange={e => setDmSearch(e.target.value)}
             />
@@ -380,7 +432,7 @@ function App() {
                   setDmSearch('')
                 }}
               >
-                <span>👤 {h.name}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}><User size={14} strokeWidth={1.8} />{h.name}</span>
                 {unreadMap[roomId] > 0 && <span className="unread-badge">{unreadMap[roomId]}</span>}
               </div>
             )
@@ -399,7 +451,7 @@ function App() {
                   setDmSearch('')
                 }}
               >
-                <span>👤 {m.name}</span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}><User size={14} strokeWidth={1.8} />{m.name}</span>
                 {unreadMap[roomId] > 0 && <span className="unread-badge">{unreadMap[roomId]}</span>}
               </div>
             )
@@ -411,7 +463,7 @@ function App() {
         <div className="room-list">
           <div className="create-group-header">
             <span>グループを作成</span>
-            <button className="btn-back" onClick={() => setShowCreateGroup(false)}>← 戻る</button>
+            <button className="btn-back" onClick={() => setShowCreateGroup(false)} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><ArrowLeft size={14} strokeWidth={2} />戻る</button>
           </div>
           <div className="create-group-body">
             <input
@@ -424,7 +476,7 @@ function App() {
             <input
               className="input"
               type="text"
-              placeholder="🔍 メンバーを検索"
+              placeholder="メンバーを検索"
               value={groupSearch}
               onChange={e => setGroupSearch(e.target.value)}
             />
@@ -465,68 +517,83 @@ function App() {
 
           return (
             <div key={msg.id} className={`message ${isMine ? 'mine' : 'other'}`}>
-              {!isMine && (
-                <div className="msg-name">{msg.name}{msg.team ? ` · ${msg.team}` : ''}</div>
-              )}
-              <div className="msg-bubble-wrap">
-                {msg.type === 'image' ? (
-                  <img src={msg.imageUrl} alt="画像" className="msg-image" />
-                ) : (
-                  <div className="msg-bubble">{msg.text}</div>
-                )}
+              {/* ★ 相手のメッセージにアバター表示 */}
+              {!isMine && <MsgAvatar name={msg.name} />}
+
+              <div className="msg-content">
                 {!isMine && (
-                  <button
-                    className="btn-reaction-add"
-                    onClick={() => setShowReactionPicker(showReactionPicker === msg.id ? null : msg.id)}
-                  >
-                    🙂+
-                  </button>
+                  <div className="msg-name">{msg.name}{msg.team ? ` · ${msg.team}` : ''}</div>
                 )}
-              </div>
-
-              {/* リアクションピッカー */}
-              {showReactionPicker === msg.id && (
-                <div className="reaction-picker">
-                  {REACTIONS.map(emoji => (
+                <div className="msg-bubble-wrap">
+                  {msg.type === 'image' ? (
+                    <img src={msg.imageUrl} alt="画像" className="msg-image" />
+                  ) : (
+                    <div className="msg-bubble">{msg.text}</div>
+                  )}
+                  {!isMine && (
                     <button
-                      key={emoji}
-                      className="reaction-btn"
-                      onClick={() => handleReaction(msg.id, emoji)}
+                      className="btn-reaction-add"
+                      onClick={() => setShowReactionPicker(showReactionPicker === msg.id ? null : msg.id)}
                     >
-                      {emoji}
+                      <SmilePlus size={16} strokeWidth={1.8} />
                     </button>
-                  ))}
+                  )}
                 </div>
-              )}
 
-              {/* リアクション表示 */}
-              {reactionMap[msg.id] && (
-                <div className="reaction-list">
-                  {Object.entries(reactionMap[msg.id]).map(([emoji, users]) => {
-                    const count = Object.keys(users).length
-                    const myReaction = users[user.display_name]
-                    return (
+                {/* リアクションピッカー */}
+                {showReactionPicker === msg.id && (
+                  <div className="reaction-picker">
+                    {REACTIONS.map(emoji => (
                       <button
                         key={emoji}
-                        className={`reaction-item ${myReaction ? 'reacted' : ''}`}
+                        className="reaction-btn"
                         onClick={() => handleReaction(msg.id, emoji)}
                       >
-                        {emoji} {count}
+                        {emoji}
                       </button>
-                    )
-                  })}
-                </div>
-              )}
-
-              <div className="msg-meta">
-                {isMine && (
-                  <span className="msg-read">
-                    {currentRoomType === 'dm'
-                      ? readCount > 0 ? '既読' : '未読'
-                      : readCount > 0 ? `既読 ${readCount}` : ''}
-                  </span>
+                    ))}
+                  </div>
                 )}
-                <span className="msg-time">{formatTime(msg.timestamp)}</span>
+
+                {/* リアクション表示 */}
+                {reactionMap[msg.id] && (
+                  <div className="reaction-list">
+                    {Object.entries(reactionMap[msg.id]).map(([emoji, users]) => {
+                      const count = Object.keys(users).length
+                      const myReaction = users[user.display_name]
+                      return (
+                        <button
+                          key={emoji}
+                          className={`reaction-item ${myReaction ? 'reacted' : ''}`}
+                          onClick={() => handleReaction(msg.id, emoji)}
+                        >
+                          {emoji} {count}
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+
+                <div className="msg-meta">
+                  {isMine && (
+                    <span className="msg-read">
+                      {currentRoomType === 'dm'
+                        ? readCount > 0 ? '既読' : '未読'
+                        : readCount > 0 ? `既読 ${readCount}` : ''}
+                    </span>
+                  )}
+                  <span className="msg-time">{formatTime(msg.timestamp)}</span>
+                  {user.role === 'admin' && currentRoomType === 'channel' && (
+                    <button
+                      className="btn-delete-msg"
+                      onClick={() => {
+                        if (window.confirm('このメッセージを取り消しますか？')) {
+                          remove(ref(db, `messages/${currentRoom}/${msg.id}`))
+                        }
+                      }}
+                    ><X size={13} strokeWidth={2} /></button>
+                  )}
+                </div>
               </div>
             </div>
           )
@@ -538,7 +605,7 @@ function App() {
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/*"
+          accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
           style={{ display: 'none' }}
           onChange={handleImageUpload}
         />
@@ -547,7 +614,7 @@ function App() {
           onClick={() => fileInputRef.current.click()}
           disabled={uploading}
         >
-          {uploading ? '⏳' : '📷'}
+          {uploading ? <Loader2 size={20} strokeWidth={1.8} style={{ animation: 'spin 1s linear infinite' }} /> : <Camera size={20} strokeWidth={1.8} />}
         </button>
         <input
           className="input-msg"
@@ -557,7 +624,7 @@ function App() {
           onChange={e => setText(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSend()}
         />
-        <button className="btn-send" onClick={handleSend}>送信</button>
+        <button className="btn-send" onClick={handleSend}><Send size={18} strokeWidth={1.8} /></button>
       </div>
     </div>
   )
