@@ -2,7 +2,7 @@
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const MISTRAL_API_KEY = process.env.MISTRAL_API_KEY;
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 const PR_NUMBER = process.env.PR_NUMBER;
 const REPO = process.env.GITHUB_REPOSITORY;
@@ -89,37 +89,29 @@ async function reviewWithGPT4o(diff) {
 }
 
 async function reviewWithGemini(diff) {
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [
-          {
-            role: 'user',
-            parts: [
-              {
-                text: `以下のコード差分を**セキュリティ・脆弱性・SQLインジェクション**の観点でレビューしてください。\n問題点と改善案を日本語で箇条書きで簡潔に回答してください。問題がなければ「問題なし」と答えてください。\n\n\`\`\`diff\n${diff}\n\`\`\``,
-              },
-            ],
-          },
-        ],
-        generationConfig: { maxOutputTokens: 1024 },
-      }),
-    }
-  );
+  const res = await fetch('https://api.mistral.ai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${MISTRAL_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'mistral-large-latest',
+      max_tokens: 1024,
+      messages: [
+        {
+          role: 'user',
+          content: `以下のコード差分を**セキュリティ・脆弱性・SQLインジェクション**の観点でレビューしてください。\n問題点と改善案を日本語で箇条書きで簡潔に回答してください。問題がなければ「問題なし」と答えてください。\n\n\`\`\`diff\n${diff}\n\`\`\``,
+        },
+      ],
+    }),
+  });
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`Gemini APIエラー ${res.status}: ${body}`);
+    throw new Error(`Mistral APIエラー ${res.status}: ${body}`);
   }
   const data = await res.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) {
-    const reason = data.candidates?.[0]?.finishReason ?? 'UNKNOWN';
-    throw new Error(`Gemini レスポンスが空です (finishReason: ${reason})`);
-  }
-  return text;
+  return data.choices[0].message.content;
 }
 
 async function getExistingComment() {
@@ -187,22 +179,25 @@ async function main() {
   if (claudeResult.status === 'fulfilled') {
     comment += `## 🔵 Claude — 設計・コード品質・保守性\n\n${claudeResult.value}\n\n`;
   } else {
-    console.error('Claude エラー:', claudeResult.reason.message);
-    comment += `## 🔵 Claude — 設計・コード品質・保守性\n\n> ⚠️ レビュー取得に失敗しました。\n\n`;
+    const msg = claudeResult.reason?.message ?? String(claudeResult.reason);
+    console.error('Claude エラー:', msg);
+    comment += `## 🔵 Claude — 設計・コード品質・保守性\n\n> ⚠️ エラー: \`${msg}\`\n\n`;
   }
 
   if (gptResult.status === 'fulfilled') {
     comment += `## 🟢 GPT-4o — バグ・実装ミス・ロジック\n\n${gptResult.value}\n\n`;
   } else {
-    console.error('GPT-4o エラー:', gptResult.reason.message);
-    comment += `## 🟢 GPT-4o — バグ・実装ミス・ロジック\n\n> ⚠️ レビュー取得に失敗しました。\n\n`;
+    const msg = gptResult.reason?.message ?? String(gptResult.reason);
+    console.error('GPT-4o エラー:', msg);
+    comment += `## 🟢 GPT-4o — バグ・実装ミス・ロジック\n\n> ⚠️ エラー: \`${msg}\`\n\n`;
   }
 
   if (geminiResult.status === 'fulfilled') {
-    comment += `## 🔴 Gemini — セキュリティ・脆弱性\n\n${geminiResult.value}\n\n`;
+    comment += `## 🔴 Mistral — セキュリティ・脆弱性\n\n${geminiResult.value}\n\n`;
   } else {
-    console.error('Gemini エラー:', geminiResult.reason.message);
-    comment += `## 🔴 Gemini — セキュリティ・脆弱性\n\n> ⚠️ レビュー取得に失敗しました。\n\n`;
+    const msg = geminiResult.reason?.message ?? String(geminiResult.reason);
+    console.error('Mistral エラー:', msg);
+    comment += `## 🔴 Mistral — セキュリティ・脆弱性\n\n> ⚠️ エラー: \`${msg}\`\n\n`;
   }
 
   comment += `---\n*🕐 レビュー実行日時: ${now} JST*`;
