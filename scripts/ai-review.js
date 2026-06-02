@@ -90,13 +90,14 @@ async function reviewWithGPT4o(diff) {
 
 async function reviewWithGemini(diff) {
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${GEMINI_API_KEY}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [
           {
+            role: 'user',
             parts: [
               {
                 text: `以下のコード差分を**セキュリティ・脆弱性・SQLインジェクション**の観点でレビューしてください。\n問題点と改善案を日本語で箇条書きで簡潔に回答してください。問題がなければ「問題なし」と答えてください。\n\n\`\`\`diff\n${diff}\n\`\`\``,
@@ -113,7 +114,12 @@ async function reviewWithGemini(diff) {
     throw new Error(`Gemini APIエラー ${res.status}: ${body}`);
   }
   const data = await res.json();
-  return data.candidates[0].content.parts[0].text;
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) {
+    const reason = data.candidates?.[0]?.finishReason ?? 'UNKNOWN';
+    throw new Error(`Gemini レスポンスが空です (finishReason: ${reason})`);
+  }
+  return text;
 }
 
 async function getExistingComment() {
