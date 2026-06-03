@@ -93,6 +93,11 @@ RUN sed -i 's/Listen 80/Listen 10000/' /etc/apache2/ports.conf \
 # .htaccess を有効にする（AllowOverride All）
 RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
 
+# リクエストライン上限を拡張（Azure AD の長い認証URLに対応）
+RUN printf 'LimitRequestLine 16380\nLimitRequestFieldSize 16380\n' \
+      > /etc/apache2/conf-available/limits.conf \
+    && a2enconf limits
+
 # ルートアクセス（/）を /2026/ にリダイレクト
 # DocumentRoot は /var/www/html/ のままだが、全アプリは /2026/ 以下にあるため
 RUN printf '<!DOCTYPE html>\n<html><head>\n<meta http-equiv="refresh" content="0;url=/2026/">\n<script>location.replace("/2026/")</script>\n</head></html>\n' \
