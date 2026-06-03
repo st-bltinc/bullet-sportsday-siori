@@ -119,7 +119,6 @@ COPY common/     ./common/
 COPY login/      ./login/
 COPY mypage/     ./mypage/
 COPY notices/    ./notices/
-COPY score/      ./score/
 
 # PHP + React 混在ディレクトリ（dist/ は .dockerignore で除外済み）
 COPY chat/       ./chat/
