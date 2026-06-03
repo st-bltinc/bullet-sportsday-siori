@@ -3,6 +3,7 @@ import { CalendarClock, MessageCircle, LayoutGrid, MapPin, Users, Vote, Clipboar
 import { initializeApp, getApps } from 'firebase/app'
 import { getDatabase, ref as fbRef, set as fbSet, onValue as fbOnValue, get as fbGet } from 'firebase/database'
 import './App.css'
+import LiveRankingBoard from './LiveRankingBoard'
 
 // Firebase初期化（既存のchatと同じconfig）
 const firebaseConfig = {
@@ -269,6 +270,14 @@ function HomePage({ user, myData }) {
           <span className="home-action-icon"><Camera size={32} strokeWidth={1.5} color="#bbb" /></span>
           <span className="home-action-label">アルバム</span>
         </a>
+      </div>
+
+      <div className="home-ranking-section">
+        <div className="home-ranking-header">
+          <Trophy size={13} strokeWidth={1.8} color={teamColor.color} />
+          <span>ライブランキング</span>
+        </div>
+        <LiveRankingBoard eventId={1} />
       </div>
 
       <div className="home-notice">
@@ -879,6 +888,18 @@ function StaffPage({ user, onTabChange }) {
   )
 }
 
+function RankingPage() {
+  return (
+    <div className="page">
+      <div className="page-header">
+        <div className="page-header-accent" />
+        <h2 className="page-title">ライブランキング</h2>
+      </div>
+      <LiveRankingBoard eventId={1} />
+    </div>
+  )
+}
+
 function OtherPage({ onTabChange, gameEnabled, user }) {
   const items = [
     { lucide: Users, label: 'メンバーリスト', url: '/2026/members/', color: '#7B6EE8' },
@@ -889,6 +910,7 @@ function OtherPage({ onTabChange, gameEnabled, user }) {
     { lucide: BookOpen, label: '競技ルール', url: null, color: '#40A0E8', isInternal: true, tab: 'rules' },
     { lucide: UserCog, label: '運営メンバー', url: null, color: '#A040E8', isInternal: true, tab: 'staff' },
     { lucide: Gamepad2, label: 'ミニゲーム', url: '/2026/game/', color: '#E8E040', locked: !gameEnabled },
+    { lucide: Trophy, label: 'ライブランキング', url: null, color: '#E8C040', isInternal: true, tab: 'ranking' },
   ]
 
   return (
@@ -1031,6 +1053,7 @@ function App() {
       case 'staff': return <StaffPage user={user} onTabChange={setActiveTab} />
       case 'admin': return <AdminPage user={user} />
       case 'rules': return <RulesPage user={user} />
+      case 'ranking': return <RankingPage />
       default: return <HomePage user={user} myData={myData} />
     }
   }
