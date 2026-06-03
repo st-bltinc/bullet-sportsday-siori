@@ -69,17 +69,17 @@ define('AZURE_CLIENT_ID', getenv('AZURE_CLIENT_ID') ?: '');
 define('AZURE_CLIENT_SECRET', getenv('AZURE_CLIENT_SECRET') ?: '');
 
 /**
- * コールバックURL: アクセス元がlocalhostなら自動でローカル用URLを使う
- * 本番サーバー(wagahai.mixh.jp)からのアクセスは本番URLを使う
+ * コールバックURL: HTTP_HOST から動的に生成する
+ * localhost/127.0.0.1 → http、それ以外 → https
+ * Azure Portal に登録するリダイレクトURIをこのホストで登録すること
  */
 $_host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$_isLocal = str_contains($_host, 'localhost') || str_contains($_host, '127.0.0.1');
 define(
     'AZURE_REDIRECT_URI',
-    str_contains($_host, 'localhost') || str_contains($_host, '127.0.0.1')
-    ? 'http://localhost:8000/login/callback.php'
-    : 'https://wagahai.mixh.jp/2026/login/callback.php'
+    ($_isLocal ? 'http' : 'https') . '://' . $_host . '/2026/login/callback.php'
 );
-unset($_host);
+unset($_host, $_isLocal);
 
 /** 要求するスコープ (openid profile email は必須) */
 define('AZURE_SCOPES', 'openid profile email');

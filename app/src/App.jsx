@@ -17,9 +17,9 @@ const firebaseConfig = {
 const firebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]
 const fdb = getDatabase(firebaseApp)
 
-const ME_API = 'https://wagahai.mixh.jp/2026/login/me.php'
-const MEMBERS_API = 'https://wagahai.mixh.jp/2026/members/api.php'
-const NOTICES_API = 'https://wagahai.mixh.jp/2026/notices/api.php'
+const ME_API = '/2026/login/me.php'
+const MEMBERS_API = '/2026/members/api.php'
+const NOTICES_API = '/2026/notices/api.php'
 
 const scheduleData = [
   { time: '10:00', endTime: '10:30', label: '受付開始', icon: '🚪', lucide: DoorOpen, place: 'メイングラウンド' },
@@ -259,12 +259,12 @@ function HomePage({ user, myData }) {
       </div>
 
       <div className="home-actions">
-        <a href="https://wagahai.mixh.jp/2026/login/top.php" className="home-action-btn" style={{ '--ac': teamColor.color, '--ag': teamColor.glow, '--ad': teamColor.dim, '--ab': teamColor.border }}>
+        <a href="/2026/login/top.php" className="home-action-btn" style={{ '--ac': teamColor.color, '--ag': teamColor.glow, '--ad': teamColor.dim, '--ab': teamColor.border }}>
           <div className="home-action-glow" />
           <span className="home-action-icon"><CheckSquare size={32} strokeWidth={1.5} color={teamColor.color} /></span>
           <span className="home-action-label">出席確認</span>
         </a>
-        <a href="https://wagahai.mixh.jp/2026/album/" className="home-action-btn dim">
+        <a href="/2026/album/" className="home-action-btn dim">
           <div className="home-action-glow" />
           <span className="home-action-icon"><Camera size={32} strokeWidth={1.5} color="#bbb" /></span>
           <span className="home-action-label">アルバム</span>
@@ -412,7 +412,7 @@ function SchedulePage({ user }) {
 function MapPage() {
   return (
     <div className="page page-full">
-      <iframe src="https://wagahai.mixh.jp/2026/map/" className="feature-iframe full" title="MAP" />
+      <iframe src="/2026/map/" className="feature-iframe full" title="MAP" />
     </div>
   )
 }
@@ -420,7 +420,7 @@ function MapPage() {
 function ChatPage() {
   return (
     <div className="page page-full">
-      <iframe src="https://wagahai.mixh.jp/2026/chat/" className="feature-iframe full" title="チャット" />
+      <iframe src="/2026/chat/" className="feature-iframe full" title="チャット" />
     </div>
   )
 }
@@ -881,14 +881,14 @@ function StaffPage({ user, onTabChange }) {
 
 function OtherPage({ onTabChange, gameEnabled, user }) {
   const items = [
-    { lucide: Users, label: 'メンバーリスト', url: 'https://wagahai.mixh.jp/2026/members/', color: '#7B6EE8' },
-    { lucide: Vote, label: '投票', url: 'https://wagahai.mixh.jp/2026/vote/', color: '#E8A040' },
-    { lucide: ClipboardCheck, label: '持ち物チェック', url: 'https://wagahai.mixh.jp/2026/checklist/', color: '#40C84A' },
-    { lucide: HelpCircle, label: 'Q&A', url: 'https://wagahai.mixh.jp/2026/qna/', color: '#40C8E8' },
-    { lucide: Images, label: 'アルバム', url: 'https://wagahai.mixh.jp/2026/album/', color: '#E84080' },
+    { lucide: Users, label: 'メンバーリスト', url: '/2026/members/', color: '#7B6EE8' },
+    { lucide: Vote, label: '投票', url: '/2026/vote/', color: '#E8A040' },
+    { lucide: ClipboardCheck, label: '持ち物チェック', url: '/2026/checklist/', color: '#40C84A' },
+    { lucide: HelpCircle, label: 'Q&A', url: '/2026/qna/', color: '#40C8E8' },
+    { lucide: Images, label: 'アルバム', url: '/2026/album/', color: '#E84080' },
     { lucide: BookOpen, label: '競技ルール', url: null, color: '#40A0E8', isInternal: true, tab: 'rules' },
     { lucide: UserCog, label: '運営メンバー', url: null, color: '#A040E8', isInternal: true, tab: 'staff' },
-    { lucide: Gamepad2, label: 'ミニゲーム', url: 'https://wagahai.mixh.jp/2026/game/', color: '#E8E040', locked: !gameEnabled },
+    { lucide: Gamepad2, label: 'ミニゲーム', url: '/2026/game/', color: '#E8E040', locked: !gameEnabled },
   ]
 
   return (
@@ -932,7 +932,7 @@ function OtherPage({ onTabChange, gameEnabled, user }) {
 
       {/* ログアウトボタン */}
       <a
-        href="https://wagahai.mixh.jp/2026/login/logout.php"
+        href="/2026/login/logout.php"
         className="logout-btn"
       >
         <span><LogOut size={18} strokeWidth={1.8} /></span>
@@ -986,7 +986,7 @@ function App() {
         if (res.status === 401) {
           localStorage.removeItem(CACHE_KEY)
           const redirect = encodeURIComponent(window.location.href)
-          window.location.href = `https://wagahai.mixh.jp/2026/login/?redirect=${redirect}`
+          window.location.href = `/2026/login/?redirect=${redirect}`
           return null
         }
         return res.json()
