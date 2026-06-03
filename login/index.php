@@ -7,8 +7,7 @@ require_once __DIR__ . '/../common/config.php';
 require_once __DIR__ . '/../common/functions.php';
 
 if (session_status() === PHP_SESSION_NONE) {
-    // form_post コールバックは Azure → ブラウザ → 当サイトへのクロスサイト POST
-    // SameSite=None;Secure にしないと Cookie が届かず oauth_state 検証が失敗する
+    // form_post コールバックはクロスサイト POST なので SameSite=None;Secure が必要
     $_isLocal = str_contains($_SERVER['HTTP_HOST'] ?? 'localhost', 'localhost')
              || str_contains($_SERVER['HTTP_HOST'] ?? 'localhost', '127.0.0.1');
     session_set_cookie_params([
@@ -26,13 +25,20 @@ if (!empty($_SESSION['user'])) {
     exit;
 }
 
-if (!empty($_GET['redirect'])) {
-    $_SESSION['login_redirect'] = $_GET['redirect'];
+// ボタンクリック（POST）: ここで初めて state を生成して Azure へリダイレクト
+// GET 時には Azure URL を一切生成・出力しない（長い URL が HTML に埋まるのを防ぐ）
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!empty($_POST['redirect'])) {
+        $_SESSION['login_redirect'] = $_POST['redirect'];
+    }
+    $state = generate_state();
+    $_SESSION['oauth_state'] = $state;
+    header('Location: ' . build_auth_url($state));
+    exit;
 }
 
-$state = generate_state();
-$_SESSION['oauth_state'] = $state;
-$auth_url = build_auth_url($state);
+// GET: redirect パラメータがあればフォームの hidden に渡す
+$redirect = $_GET['redirect'] ?? '';
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -40,9 +46,7 @@ $auth_url = build_auth_url($state);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ログイン -
-        <?= htmlspecialchars(APP_NAME) ?>
-    </title>
+    <title>ログイン - <?= htmlspecialchars(APP_NAME) ?></title>
     <style>
         * {
             box-sizing: border-box;
@@ -102,7 +106,8 @@ $auth_url = build_auth_url($state);
             gap: 10px;
             background: #464EB8;
             color: #fff;
-            text-decoration: none;
+            border: none;
+            cursor: pointer;
             padding: 14px 28px;
             border-radius: 6px;
             font-size: 16px;
@@ -132,23 +137,26 @@ $auth_url = build_auth_url($state);
         <div class="logo">
             <img src="/2026/logo.png" alt="SDC運動会">
         </div>
-        <h1>
-            しおりアプリログイン
-        </h1>
+        <h1>しおりアプリログイン</h1>
         <p>しおりアプリのログインシステムです。<br>Microsoft Teamsアカウントでログインしてください。</p>
 
-        <a href="<?= htmlspecialchars($auth_url) ?>" class="btn-teams">
-            <svg width="20" height="20" viewBox="0 0 2228.833 2073.333" xmlns="http://www.w3.org/2000/svg">
-                <path fill="#fff"
-                    d="M1554.637,777.5h575.713c54.391,0,98.483,44.092,98.483,98.483v524.398 c0,199.901-162.001,361.902-361.902,361.902h-1.711c-199.901,0.028-361.93-162.001-361.93-361.902V828.971 C1505.29,800.544,1527.365,777.5,1554.637,777.5z" />
-                <circle fill="#fff" cx="1943.75" cy="440.583" r="233.25" />
-                <path fill="#fff"
-                    d="M1418.023,440.583c0,128.737-104.363,233.1-233.1,233.1s-233.1-104.363-233.1-233.1 s104.363-233.1,233.1-233.1S1418.023,311.846,1418.023,440.583z" />
-                <path fill="#fff"
-                    d="M1881.448,777.5H887.102c-53.186,0-96.268,43.082-96.268,96.268v600.411 c0,329.509,267.063,596.572,596.572,596.572s596.572-267.063,596.572-596.572V877.384 C1983.979,824.961,1937.871,777.5,1881.448,777.5z" />
-            </svg>
-            Microsoft Teams でログイン
-        </a>
+        <form method="POST" action="">
+            <?php if ($redirect !== ''): ?>
+            <input type="hidden" name="redirect" value="<?= htmlspecialchars($redirect) ?>">
+            <?php endif; ?>
+            <button type="submit" class="btn-teams">
+                <svg width="20" height="20" viewBox="0 0 2228.833 2073.333" xmlns="http://www.w3.org/2000/svg">
+                    <path fill="#fff"
+                        d="M1554.637,777.5h575.713c54.391,0,98.483,44.092,98.483,98.483v524.398 c0,199.901-162.001,361.902-361.902,361.902h-1.711c-199.901,0.028-361.93-162.001-361.93-361.902V828.971 C1505.29,800.544,1527.365,777.5,1554.637,777.5z" />
+                    <circle fill="#fff" cx="1943.75" cy="440.583" r="233.25" />
+                    <path fill="#fff"
+                        d="M1418.023,440.583c0,128.737-104.363,233.1-233.1,233.1s-233.1-104.363-233.1-233.1 s104.363-233.1,233.1-233.1S1418.023,311.846,1418.023,440.583z" />
+                    <path fill="#fff"
+                        d="M1881.448,777.5H887.102c-53.186,0-96.268,43.082-96.268,96.268v600.411 c0,329.509,267.063,596.572,596.572,596.572s596.572-267.063,596.572-596.572V877.384 C1983.979,824.961,1937.871,777.5,1881.448,777.5z" />
+                </svg>
+                Microsoft Teams でログイン
+            </button>
+        </form>
 
         <div class="footer">ご不明な点は総務部までお問い合わせください</div>
     </div>
