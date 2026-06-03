@@ -11,19 +11,9 @@
 node_modules
 */node_modules
 
-# ── React ソース（ビルド済み dist は builder ステージで生成）──
-*/src
-*/public
+# ── ビルド済みファイル（builder ステージで生成するため除外）──
+# ※ src/ public/ vite.config.* は builder ステージで必要なため除外しない
 */dist
-app/src
-app/public
-app/dist
-
-# ── Vite / ESLint 設定（ランタイム不要）────────────────────
-*/vite.config.*
-*/eslint.config.*
-*/.gitignore
-*/README.md
 
 # ── ログ・一時ファイル ───────────────────────────────────────
 *.log
