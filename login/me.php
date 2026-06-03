@@ -36,6 +36,19 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// DEMO_MODE=true のときはゲストユーザーとしてセッションを自動設定
+if (getenv('DEMO_MODE') === 'true' && empty($_SESSION['user'])) {
+    $_SESSION['user'] = [
+        'id'           => 0,
+        'azure_oid'    => 'demo',
+        'email'        => 'demo@example.com',
+        'display_name' => 'デモユーザー',
+        'team_name'    => '赤チーム',
+        'bus_number'   => 1,
+        'role'         => 'user',
+    ];
+}
+
 // 未ログインは 401 を返す (リダイレクトしない)
 if (empty($_SESSION['user'])) {
     json_response(['error' => 'ログインしていません'], 401);

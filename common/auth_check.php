@@ -23,6 +23,19 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// DEMO_MODE=true のときは認証をスキップしてゲストとしてログイン済み扱いにする
+if (getenv('DEMO_MODE') === 'true' && empty($_SESSION['user'])) {
+    $_SESSION['user'] = [
+        'id'           => 0,
+        'azure_oid'    => 'demo',
+        'email'        => 'demo@example.com',
+        'display_name' => 'デモユーザー',
+        'team_name'    => '赤チーム',
+        'bus_number'   => 1,
+        'role'         => 'user',
+    ];
+}
+
 // セッションにユーザー情報がなければログインページへ飛ばす
 if (empty($_SESSION['user'])) {
     header('Location: ' . APP_BASE . '/login/');
