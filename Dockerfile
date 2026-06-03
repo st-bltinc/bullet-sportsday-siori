@@ -94,9 +94,9 @@ RUN sed -i 's/Listen 80/Listen 10000/' /etc/apache2/ports.conf \
 RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
 
 # リクエストライン上限を拡張（Azure AD の長い認証URLに対応）
-RUN printf 'LimitRequestLine 16380\nLimitRequestFieldSize 16380\n' \
-      > /etc/apache2/conf-available/limits.conf \
-    && a2enconf limits
+# apache2.conf に直接追記することで確実に反映させる
+RUN echo 'LimitRequestLine 16380' >> /etc/apache2/apache2.conf \
+    && echo 'LimitRequestFieldSize 16380' >> /etc/apache2/apache2.conf
 
 # ルートアクセス（/）を /2026/ にリダイレクト
 # DocumentRoot は /var/www/html/ のままだが、全アプリは /2026/ 以下にあるため
