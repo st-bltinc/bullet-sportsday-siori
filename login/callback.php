@@ -15,20 +15,24 @@ require_once __DIR__ . '/../common/db.php';
 
 // セッション開始
 if (session_status() === PHP_SESSION_NONE) {
+    $_isLocal = str_contains($_SERVER['HTTP_HOST'] ?? 'localhost', 'localhost')
+             || str_contains($_SERVER['HTTP_HOST'] ?? 'localhost', '127.0.0.1');
     session_set_cookie_params([
         'lifetime' => SESSION_LIFETIME,
-        'path' => '/',
+        'path'     => '/',
         'httponly' => true,
-        'samesite' => 'Lax',
+        'secure'   => !$_isLocal,
+        'samesite' => $_isLocal ? 'Lax' : 'None',
     ]);
     session_start();
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // ① エラーチェック: Microsoftから認証失敗が返ってきた場合
+// response_mode=form_post のため POST で受け取る
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-if (isset($_GET['error'])) {
-    $error_msg = htmlspecialchars($_GET['error_description'] ?? $_GET['error']);
+if (isset($_POST['error'])) {
+    $error_msg = htmlspecialchars($_POST['error_description'] ?? $_POST['error']);
     error_log('[Auth Error] ' . $error_msg);
     header('Location: ' . APP_BASE . '/login/?error=auth_failed');
     exit;
@@ -37,7 +41,7 @@ if (isset($_GET['error'])) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // ② CSRF対策: state の一致を確認
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-$received_state = $_GET['state'] ?? '';
+$received_state = $_POST['state'] ?? '';
 $expected_state = $_SESSION['oauth_state'] ?? '';
 
 // state確認後はセッションから削除 (リプレイ攻撃対策)
@@ -52,7 +56,7 @@ if (empty($received_state) || !hash_equals($expected_state, $received_state)) {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // ③ 認証コードをトークンと交換
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-$code = $_GET['code'] ?? '';
+$code = $_POST['code'] ?? '';
 if (empty($code)) {
     header('Location: ' . APP_BASE . '/login/?error=no_code');
     exit;

@@ -47,7 +47,7 @@ function build_auth_url(string $state): string
         'response_type' => 'code',
         'redirect_uri'  => AZURE_REDIRECT_URI,
         'scope'         => AZURE_SCOPES,
-        'response_mode' => 'query',
+        'response_mode' => 'form_post',
         'state'         => $state,
     ]);
 

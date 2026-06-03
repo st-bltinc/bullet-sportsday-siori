@@ -7,11 +7,16 @@ require_once __DIR__ . '/../common/config.php';
 require_once __DIR__ . '/../common/functions.php';
 
 if (session_status() === PHP_SESSION_NONE) {
+    // form_post コールバックは Azure → ブラウザ → 当サイトへのクロスサイト POST
+    // SameSite=None;Secure にしないと Cookie が届かず oauth_state 検証が失敗する
+    $_isLocal = str_contains($_SERVER['HTTP_HOST'] ?? 'localhost', 'localhost')
+             || str_contains($_SERVER['HTTP_HOST'] ?? 'localhost', '127.0.0.1');
     session_set_cookie_params([
         'lifetime' => SESSION_LIFETIME,
-        'path' => '/',
+        'path'     => '/',
         'httponly' => true,
-        'samesite' => 'Lax',
+        'secure'   => !$_isLocal,
+        'samesite' => $_isLocal ? 'Lax' : 'None',
     ]);
     session_start();
 }
