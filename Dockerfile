@@ -94,11 +94,13 @@ RUN sed -i 's/Listen 80/Listen 10000/' /etc/apache2/ports.conf \
 RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
 
 # リクエストライン上限を拡張（Azure AD の長い認証URLに対応）
-# ビルド時に conf-enabled へコピー
-COPY docker/apache-limits.conf /etc/apache2/conf-enabled/limits.conf
-# デバッグ: ビルドログで設定ファイルの存在を確認
-RUN cat /etc/apache2/conf-enabled/limits.conf \
-    && grep -r "LimitRequest" /etc/apache2/ || true
+# <VirtualHost> より前のサーバーコンテキストに sed で直接挿入する
+# （conf-enabled 経由では LimitRequestLine が効かないケースがあるため）
+RUN sed -i \
+    's|<VirtualHost \*:10000>|LimitRequestLine 16380\nLimitRequestFieldSize 16380\n<VirtualHost *:10000>|' \
+    /etc/apache2/sites-enabled/000-default.conf
+# ビルドログで挿入結果を確認
+RUN grep -A1 "LimitRequest" /etc/apache2/sites-enabled/000-default.conf
 
 # ルートアクセス（/）を /2026/ にリダイレクト
 # DocumentRoot は /var/www/html/ のままだが、全アプリは /2026/ 以下にあるため
@@ -165,5 +167,4 @@ RUN chown -R www-data:www-data /var/www/html/2026 \
         ./common/sessions \
         ./album/uploads
 
-# 起動時にも LimitRequestLine を強制適用（ビルドキャッシュ対策）
-CMD ["bash", "-c", "printf 'LimitRequestLine 16380\\nLimitRequestFieldSize 16380\\n' > /etc/apache2/conf-enabled/limits.conf && apache2-foreground"]
+CMD ["apache2-foreground"]
