@@ -97,10 +97,10 @@ RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
 # <VirtualHost> より前のサーバーコンテキストに sed で直接挿入する
 # （conf-enabled 経由では LimitRequestLine が効かないケースがあるため）
 RUN sed -i \
-    's|<VirtualHost \*:10000>|LimitRequestLine 16380\nLimitRequestFieldSize 16380\n<VirtualHost *:10000>|' \
+    's|<VirtualHost \*:10000>|LimitRequestLine 2147483647\nLimitRequestFieldSize 2147483647\nLimitRequestBody 2147483647\n<VirtualHost *:10000>|' \
     /etc/apache2/sites-enabled/000-default.conf
 # ビルドログで挿入結果を確認
-RUN grep -A1 "LimitRequest" /etc/apache2/sites-enabled/000-default.conf
+RUN grep -A2 "LimitRequest" /etc/apache2/sites-enabled/000-default.conf
 
 # ルートアクセス（/）を /2026/ にリダイレクト
 # DocumentRoot は /var/www/html/ のままだが、全アプリは /2026/ 以下にあるため
