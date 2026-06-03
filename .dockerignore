@@ -1,0 +1,41 @@
+# ── Git・エディタ ─────────────────────────────────────────────
+.git
+.gitignore
+.DS_Store
+.claude
+
+# ── 機密情報 ─────────────────────────────────────────────────
+.env
+
+# ── Node.js（全階層）────────────────────────────────────────
+node_modules
+*/node_modules
+
+# ── React ソース（ビルド済み dist は builder ステージで生成）──
+*/src
+*/public
+*/dist
+app/src
+app/public
+app/dist
+
+# ── Vite / ESLint 設定（ランタイム不要）────────────────────
+*/vite.config.*
+*/eslint.config.*
+*/.gitignore
+*/README.md
+
+# ── ログ・一時ファイル ───────────────────────────────────────
+*.log
+error_log
+*/error_log
+
+# ── スクリプト・ドキュメント（サーバー不要）────────────────
+scripts/
+output/
+*.pptx
+README.md
+
+# ── SQLite データ（コンテナ内で初期化するため除外）──────────
+common/database/
+common/sessions/

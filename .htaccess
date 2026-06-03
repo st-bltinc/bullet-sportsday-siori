@@ -1,0 +1,29 @@
+Options -Indexes
+RewriteEngine On
+
+# ── セキュリティ: 機密ファイルへのアクセスを遮断 ─────────────
+RewriteRule (^|/)\.env($|/)  - [F,L]
+RewriteRule (^|/)\.git($|/)  - [F,L]
+RewriteRule (^|/)\.claude    - [F,L]
+RewriteRule ^scripts/        - [F,L]
+RewriteRule ^Dockerfile$     - [F,L]
+
+# ── 実在するファイルはそのまま配信（PHP・画像・JS/CSS 等） ───
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+# ── サブアプリ SPA フォールバック ────────────────────────────
+# 各サブアプリのルート以下で実ファイルが見つからない場合は
+# そのサブアプリの index.html を返す（React Router が処理）
+RewriteRule ^members(/.*)?$   members/index.html   [L]
+RewriteRule ^checklist(/.*)?$ checklist/index.html [L]
+RewriteRule ^chat(/.*)?$      chat/index.html      [L]
+RewriteRule ^game(/.*)?$      game/index.html      [L]
+RewriteRule ^map(/.*)?$       map/index.html       [L]
+RewriteRule ^vote(/.*)?$      vote/index.html      [L]
+RewriteRule ^qna(/.*)?$       qna/index.html       [L]
+RewriteRule ^schedule(/.*)?$  schedule/index.html  [L]
+
+# ── メインアプリ SPA フォールバック ──────────────────────────
+# 上記どれにも該当しない場合はメイン React アプリの index.html
+RewriteRule ^ index.html [L]
